@@ -1,0 +1,18 @@
+{
+  "name": "markov-json",
+  "version": "0.0.0",
+  "description": "markov chain generator/saver/trainer",
+  "main": "index.ts",
+  "repository": "git@github.com:one19/markov-json.git",
+  "author": "Drew Showalter <maelstroswim@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "test": "tsc && ava dist"
+  },
+  "devDependencies": {
+    "@types/node": "^9.6.0",
+    "ava": "^1.0.0-beta.3",
+    "typescript": "^2.8.1"
+  }
+}
