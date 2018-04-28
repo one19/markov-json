@@ -17,7 +17,7 @@ const mkj = new Markov();
 
 or, if you've already got a file /made with this library/ to parse:
 `const mkj = new Markov('./thatcrazymarkov.json');`
-or if you've created one inline somehow
+or if you've created one inline somehow, it'll be supported to import there also, soon.
 
 **Then the cool stuff starts!**
 
