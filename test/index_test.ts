@@ -96,6 +96,12 @@ test('it also knows about other punctuation uses', t => {
 const invariantSentence =
   'This is a "poor" sentence, with no variance or like anything.';
 // usage tests
+test('when given a poor training set, outputs poor results', t => {
+  const mkj = new Markov();
+  mkj.train(invariantSentence);
+  t.deepEqual(mkj.sentence(), invariantSentence);
+});
+// the word 'a' doesn't count
 test('returns similar things, but responds to word counts', t => {
   const mkj = new Markov();
   mkj.train(invariantSentence);

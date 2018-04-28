@@ -78,6 +78,30 @@ export default class Markov {
     }
     return this.cleanUp(dialogue);
   };
+
+  sentence = (numberOfSentences: number = 1): string => {
+    let sentences = 0;
+    let dialogue = '';
+    let nextWord = '';
+    let thisWord = `${sentenceStart}`;
+
+    while (sentences <= numberOfSentences) {
+      const isSentenceEnd = thisWord.match(sentenceStart);
+
+      dialogue = `${dialogue} ${thisWord}`;
+
+      nextWord = this.getNextWord(thisWord.toLowerCase());
+      thisWord = nextWord;
+
+      if (isSentenceEnd) {
+        thisWord = thisWord[0].toUpperCase() + thisWord.slice(1);
+        sentences++;
+      }
+    }
+
+    return this.cleanUp(dialogue);
+  };
+
   // replace our crazy start thing with nothing
   // our crazy punctuation directionality thingies with nothing
   private cleanUp = (dialoge: string): string =>
