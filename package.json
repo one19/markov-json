@@ -1,6 +1,6 @@
 {
   "name": "markov-json",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "markov chain generator/saver/trainer",
   "main": "dist/index.js",
   "repository": "git@github.com:one19/markov-json.git",
