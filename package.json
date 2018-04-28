@@ -1,6 +1,6 @@
 {
   "name": "markov-json",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "markov chain generator/saver/trainer",
   "main": "dist/index.js",
   "repository": "git@github.com:one19/markov-json.git",
@@ -10,12 +10,15 @@
   "scripts": {
     "test": "ava-ts test",
     "lint": "eslint . --ext '.ts' --fix",
-    "eslint-check":
-      "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
+    "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{ts,js}": ["tsc", "eslint --fix", "git add"]
+    "*.{ts,js}": [
+      "tsc",
+      "eslint --fix",
+      "git add"
+    ]
   },
   "dependencies": {},
   "devDependencies": {
