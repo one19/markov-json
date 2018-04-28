@@ -2,3 +2,6 @@ src
 *.md
 *.txt
 *.js.map
+.*
+tsconfig.json
+*.lock
