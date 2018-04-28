@@ -2,7 +2,7 @@
   "name": "markov-json",
   "version": "0.0.0",
   "description": "markov chain generator/saver/trainer",
-  "main": "src/index.ts",
+  "main": "dist/index.ts",
   "repository": "git@github.com:one19/markov-json.git",
   "author": "Drew Showalter <maelstroswim@gmail.com>",
   "license": "MIT",
