@@ -141,3 +141,64 @@ test('returns similar things, but responds to word counts', t => {
   // hit its word limit
   t.deepEqual(mkj.blob(500), fiftyTimes);
 });
+
+// ### complexity tests
+// for training purposes, let's use one of the greats:
+// Mary Shelley's Frankenstein from project gutenberg
+// <https://www.gutenberg.org/files/84/84-0.txt>
+type Histogram = {
+  [key: string]: number | undefined;
+};
+
+const histogrammify = (charsArray: string[]) =>
+  charsArray.reduce(
+    (hist: Histogram, char: string, charIndex: number): Histogram => {
+      typeof hist[char] !== 'number' ? (hist[char] = 1) : (hist[char] += 1);
+      if (charIndex === charsArray.length - 1) {
+        return Object.keys(hist).reduce(
+          (phist: Histogram, char: string): Histogram => {
+            phist[char] = hist[char] / charsArray.length;
+            return phist;
+          },
+          {}
+        );
+      }
+      return hist;
+    },
+    {}
+  );
+
+const fstein = fs.readFileSync('test/frankenstein.txt', 'utf8');
+const chars = fstein
+  .replace(/[‌‍\xa0\x00-\x09\x0b\x0c\x0e-\x1f\x7f\t\n]/g, ' ')
+  .toLowerCase()
+  .split('');
+
+const shellyGram: Histogram = histogrammify(chars);
+
+test('distribution of output chars should be no more than 1% off, given large datasets', t => {
+  const mkjs = new Markov();
+  console.time('trained in');
+  mkjs.train(fstein);
+  console.timeEnd('trained in');
+
+  console.time('made a small novel in');
+  const bigBlob = mkjs.blob(50000);
+  console.timeEnd('made a small novel in');
+
+  const mkjsHistogram: Histogram = histogrammify(
+    bigBlob.toLowerCase().split('')
+  );
+
+  // comparing characters, our big output should be no more than 5% off on any of them
+  Object.keys(mkjsHistogram)
+    .sort((a, b) => (mkjsHistogram[a] > mkjsHistogram[b] ? 1 : -1))
+    .forEach(character => {
+      const diff = Math.abs(
+        (shellyGram[character] || 0) - mkjsHistogram[character]
+      );
+
+      // console.log(`character|${character}|mk|${mkjsHistogram[character].toFixed(4)}|sh|${shellyGram[character].toFixed(4)}|-diff|${diff}`);
+      t.true(diff <= 0.01);
+    });
+});

@@ -32,6 +32,8 @@ console.log(mk.sentence(50));
 console.timeEnd('allOps');
 ```
 
+It's also **fully tested to be hideously accurate**. When given Frankenstein, it outputs a distribution of characters _including punctuation_ less than 1% off of the input novel when outputting 50,000 words, check out the test! This test [that would qualify for nanowrimo](https://nanowrimo.org/) is usually output in less than 7 seconds!
+
 Other libs just can't live up.
 
 ---
