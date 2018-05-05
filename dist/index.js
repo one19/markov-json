@@ -10,7 +10,7 @@ var anyEndPunc = /[\.!?]+$/;
 var wordLike = /[^‌‍][a-zA-Z0-9]+/g;
 var Markov = (function () {
     function Markov(main) {
-        if (main === void 0) { main = ''; }
+        if (main === void 0) { main = {}; }
         var _this = this;
         this.state = {};
         this.output = function (filepath) {
@@ -106,15 +106,17 @@ var Markov = (function () {
                 : (_this.state[startWord] = (_a = {}, _a[nextWord] = 1, _a));
             var _a;
         };
-        var isJSONFile;
-        try {
-            var file = fs.readFileSync(main, 'utf8');
-            isJSONFile = JSON.parse(file);
+        var defaultState = main;
+        if (typeof main === 'string') {
+            try {
+                var file = fs.readFileSync(main, 'utf8');
+                defaultState = JSON.parse(file);
+            }
+            catch (_) {
+                console.log('failed to parse; continuing.');
+            }
         }
-        catch (_) {
-            console.log('failed to parse; continuing.');
-        }
-        this.state = isJSONFile ? isJSONFile : {};
+        this.state = typeof defaultState === 'object' ? defaultState : {};
     }
     return Markov;
 }());

@@ -15,19 +15,22 @@ type markovWord = {
 interface State {
   [key: string]: markovWord;
 }
+type MainInput = string | State;
 
 export default class Markov {
   state: State = {};
 
-  constructor(main = '') {
-    let isJSONFile;
-    try {
-      const file = fs.readFileSync(main, 'utf8');
-      isJSONFile = JSON.parse(file);
-    } catch (_) {
-      console.log('failed to parse; continuing.');
+  constructor(main: MainInput = {}) {
+    let defaultState = main;
+    if (typeof main === 'string') {
+      try {
+        const file = fs.readFileSync(main, 'utf8');
+        defaultState = JSON.parse(file);
+      } catch (_) {
+        console.log('failed to parse; continuing.');
+      }
     }
-    this.state = isJSONFile ? isJSONFile : {};
+    this.state = typeof defaultState === 'object' ? defaultState : {};
   }
 
   output = (filepath?: string): void | State => {

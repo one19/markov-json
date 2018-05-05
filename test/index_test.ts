@@ -20,6 +20,14 @@ test('can be instantiated with a valid json file instead', t => {
   fs.unlinkSync('input_test.json');
 });
 
+test('can be instantiated with object', t => {
+  t.deepEqual(
+    JSON.stringify(new Markov({ dingle: { bop: 1 } })),
+    '{"state":{"dingle":{"bop":1}}}'
+  );
+});
+
+
 // ### functionality tests
 test('has an export function', t => {
   const mkj = new Markov();
@@ -35,6 +43,7 @@ test('it will output to a file instead, if asked', t => {
   );
   fs.unlinkSync('./output_test.json');
 });
+
 
 // ### training tests
 test('it deconstructs groupings of words into state', t => {
@@ -120,6 +129,7 @@ test('it also knows about other punctuation uses', t => {
   });
 });
 
+
 // ### usage tests
 const invariantSentence =
   'This is a "poor" sentence, with no variance or like anything.';
@@ -142,6 +152,7 @@ test('returns similar things, but responds to word counts', t => {
   // hit its word limit
   t.deepEqual(mkj.blob(500), fiftyTimes);
 });
+
 
 // ### complexity tests
 // for training purposes, let's use one of the greats:
