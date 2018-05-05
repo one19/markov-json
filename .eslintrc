@@ -18,6 +18,10 @@
     "no-console": 1,
     "prettier/prettier": [
       "error"
-    ]
+    ],
+    "no-control-regex": 0,
+    "no-undef": 0,
+    "no-unused-vars": 1,
+    "no-useless-escape": 0
   }
 }

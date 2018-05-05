@@ -24,7 +24,9 @@ export default class Markov {
     try {
       const file = fs.readFileSync(main, 'utf8');
       isJSONFile = JSON.parse(file);
-    } catch (_) {}
+    } catch (_) {
+      console.log('failed to parse; continuing.');
+    }
     this.state = isJSONFile ? isJSONFile : {};
   }
 
@@ -38,6 +40,7 @@ export default class Markov {
 
   train = (text: string): void => {
     const { updateState } = this;
+
     text
       .toLowerCase()
       .replace(hiddenChars, '')
@@ -76,7 +79,6 @@ export default class Markov {
     let words = 0;
     let sentences = 0;
     let dialogue = '';
-    let nextWord = '';
     let thisWord = `${sentenceStart}`;
     const hasPuncts = !!Object.keys(this.state).find(
       e => !!e.match(anyEndPunc)

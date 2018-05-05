@@ -2,15 +2,15 @@ import test from 'ava';
 import * as fs from 'fs';
 import { default as Markov } from '../src';
 
-const hiddenCharStart = 's‌‍t‌‍a‌‍r‌‍t';
-
-// instantiation tests
+// ### instantiation tests
 test('is a classy function', t => {
   t.deepEqual(typeof Markov, 'function');
 });
+
 test('is able to be instantiated', t => {
   t.deepEqual(JSON.stringify(new Markov()), '{"state":{}}');
 });
+
 test('can be instantiated with a valid json file instead', t => {
   fs.writeFileSync('./input_test.json', '{ "word": { "none": 1 } }');
   t.deepEqual(
@@ -20,11 +20,12 @@ test('can be instantiated with a valid json file instead', t => {
   fs.unlinkSync('input_test.json');
 });
 
-// functionality tests
+// ### functionality tests
 test('has an export function', t => {
   const mkj = new Markov();
   t.deepEqual(mkj.output(), {});
 });
+
 test('it will output to a file instead, if asked', t => {
   const thismkjOfMine = new Markov();
   t.deepEqual(thismkjOfMine.output('./output_test.json'), undefined);
