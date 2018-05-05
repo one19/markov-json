@@ -6,6 +6,8 @@ var sentenceEnd = /\b([\.!?]+)( |$)/g;
 var hiddenChars = /[‌‍\xa0\x00-\x09\x0b\x0c\x0e-\x1f\x7f]/g;
 var startPunc = /( [^\.!?a-zA-Z0-9]+)\b/g;
 var endPunc = /\b([^‌‍\.!?a-zA-Z0-9]+ )/g;
+var anyEndPunc = /[\.!?]+$/;
+var wordLike = /[^‌‍][a-zA-Z0-9]+/g;
 var Markov = (function () {
     function Markov(main) {
         if (main === void 0) { main = ''; }
@@ -28,10 +30,13 @@ var Markov = (function () {
                 .replace(sentenceEnd, " \u200C\u200D$1 " + sentenceStart + " ")
                 .replace(startPunc, '$1‌‍ ')
                 .replace(endPunc, ' ‌‍$1')
+                .replace(/(.*)$/, "$1 " + sentenceStart)
                 .split(/\s+/g)
                 .filter(function (word) { return word.length; })
                 .reduce(function (previousWord, thisWord) {
-                var nullSentence = previousWord === sentenceStart && thisWord.match(sentenceEnd);
+                var atSentenceStart = previousWord === sentenceStart;
+                var wordIsStart = thisWord.match(sentenceEnd) || thisWord.match(sentenceStart);
+                var nullSentence = wordIsStart && atSentenceStart;
                 if (!nullSentence) {
                     updateState(previousWord, thisWord);
                     return thisWord;
@@ -39,36 +44,31 @@ var Markov = (function () {
                 return previousWord;
             }, sentenceStart);
         };
-        this.blob = function (numberOfWords) {
-            if (numberOfWords === void 0) { numberOfWords = 119; }
-            var words = 0;
-            var dialogue = '';
-            var nextWord = '';
-            var thisWord = "" + sentenceStart;
-            while (words < numberOfWords) {
-                var isSentenceEnd = thisWord.match(sentenceStart);
-                var isWord = thisWord.match(/[^‌‍][a-zA-Z0-9]+/g);
-                dialogue = dialogue + " " + thisWord;
-                var nextWord_1 = _this.getNextWord(thisWord.toLowerCase());
-                thisWord = nextWord_1;
-                if (isWord)
-                    words++;
-                if (isSentenceEnd)
-                    thisWord = thisWord[0].toUpperCase() + thisWord.slice(1);
-            }
-            return _this.cleanUp(dialogue);
-        };
         this.sentence = function (numberOfSentences) {
             if (numberOfSentences === void 0) { numberOfSentences = 1; }
+            return _this.reconstruct(numberOfSentences);
+        };
+        this.blob = function (numberOfWords) {
+            if (numberOfWords === void 0) { numberOfWords = 119; }
+            return _this.reconstruct(null, numberOfWords);
+        };
+        this.reconstruct = function (wantedSentences, wantedWords) {
+            if (wantedWords === void 0) { wantedWords = 2000; }
+            var words = 0;
             var sentences = 0;
             var dialogue = '';
-            var nextWord = '';
             var thisWord = "" + sentenceStart;
-            while (sentences <= numberOfSentences) {
+            var hasPuncts = !!Object.keys(_this.state).find(function (e) { return !!e.match(anyEndPunc); });
+            while (wantedSentences && hasPuncts
+                ? sentences <= wantedSentences
+                : words < wantedWords) {
                 var isSentenceEnd = thisWord.match(sentenceStart);
+                var isWord = thisWord.match(wordLike);
                 dialogue = dialogue + " " + thisWord;
-                nextWord = _this.getNextWord(thisWord.toLowerCase());
+                var nextWord = _this.getNextWord(thisWord.toLowerCase());
                 thisWord = nextWord;
+                if (isWord)
+                    words++;
                 if (isSentenceEnd) {
                     thisWord = thisWord[0].toUpperCase() + thisWord.slice(1);
                     sentences++;
@@ -111,7 +111,9 @@ var Markov = (function () {
             var file = fs.readFileSync(main, 'utf8');
             isJSONFile = JSON.parse(file);
         }
-        catch (_) { }
+        catch (_) {
+            console.log('failed to parse; continuing.');
+        }
         this.state = isJSONFile ? isJSONFile : {};
     }
     return Markov;
