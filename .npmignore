@@ -5,4 +5,5 @@ src
 .*
 tsconfig.json
 *.lock
-*.md
+README.md
+test
