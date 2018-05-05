@@ -76,6 +76,23 @@ test('it knows about sentences', t => {
     '‌‍...': { s‌‍t‌‍a‌‍r‌‍t: 1 }
   });
 });
+
+test('refuses to allow unending sentences to run forever', t => {
+  const mkj = new Markov();
+  // no punctuation at all in 10000 copies of our training sentence
+  // this means it could run a very long time before finding the endchar
+  // automatically appended to the end of every training string
+  const noEndSentence =
+    'each word four char long this time runs lots over four ever';
+  const longNoEndInput = Array(10000)
+    .fill(0)
+    .reduce(ret => ret + ' ' + noEndSentence, '');
+  mkj.train(longNoEndInput);
+  // default output constraint is 2000 words: 4 length + 1 space
+  const sentence = mkj.sentence(234);
+  t.true(sentence.length <= 5 * 2000);
+});
+
 test('it also knows about other punctuation uses', t => {
   const mkj = new Markov();
   mkj.train('some words, -other stuff- Also "things" lel #');

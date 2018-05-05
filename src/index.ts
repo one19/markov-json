@@ -6,6 +6,8 @@ const sentenceEnd = /\b([\.!?]+)( |$)/g;
 const hiddenChars = /[‌‍\xa0\x00-\x09\x0b\x0c\x0e-\x1f\x7f]/g;
 const startPunc = /( [^\.!?a-zA-Z0-9]+)\b/g;
 const endPunc = /\b([^‌‍\.!?a-zA-Z0-9]+ )/g;
+const anyEndPunc = /[\.!?]+$/;
+const wordLike = /[^‌‍][a-zA-Z0-9]+/g;
 
 type markovWord = {
   [nextword: string]: number;
@@ -61,15 +63,32 @@ export default class Markov {
       }, sentenceStart);
   };
 
-  blob = (numberOfWords: number = 119): string => {
+  sentence = (numberOfSentences: number = 1): string =>
+    this.reconstruct(numberOfSentences);
+
+  blob = (numberOfWords: number = 119): string =>
+    this.reconstruct(null, numberOfWords);
+
+  private reconstruct = (
+    wantedSentences: number | null,
+    wantedWords: number = 2000
+  ): string => {
     let words = 0;
+    let sentences = 0;
     let dialogue = '';
     let nextWord = '';
     let thisWord = `${sentenceStart}`;
+    const hasPuncts = !!Object.keys(this.state).find(
+      e => !!e.match(anyEndPunc)
+    );
 
-    while (words < numberOfWords) {
+    while (
+      wantedSentences && hasPuncts
+        ? sentences <= wantedSentences
+        : words < wantedWords
+    ) {
       const isSentenceEnd = thisWord.match(sentenceStart);
-      const isWord = thisWord.match(/[^‌‍][a-zA-Z0-9]+/g);
+      const isWord = thisWord.match(wordLike);
 
       dialogue = `${dialogue} ${thisWord}`;
 
@@ -77,32 +96,11 @@ export default class Markov {
       thisWord = nextWord;
 
       if (isWord) words++;
-      if (isSentenceEnd)
-        thisWord = thisWord[0].toUpperCase() + thisWord.slice(1);
-    }
-    return this.cleanUp(dialogue);
-  };
-
-  sentence = (numberOfSentences: number = 1): string => {
-    let sentences = 0;
-    let dialogue = '';
-    let nextWord = '';
-    let thisWord = `${sentenceStart}`;
-
-    while (sentences <= numberOfSentences) {
-      const isSentenceEnd = thisWord.match(sentenceStart);
-
-      dialogue = `${dialogue} ${thisWord}`;
-
-      nextWord = this.getNextWord(thisWord.toLowerCase());
-      thisWord = nextWord;
-
       if (isSentenceEnd) {
         thisWord = thisWord[0].toUpperCase() + thisWord.slice(1);
         sentences++;
       }
     }
-
     return this.cleanUp(dialogue);
   };
 
