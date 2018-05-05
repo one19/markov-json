@@ -43,11 +43,15 @@ export default class Markov {
       .replace(sentenceEnd, ` ‌‍$1 ${sentenceStart} `)
       .replace(startPunc, '$1‌‍ ')
       .replace(endPunc, ' ‌‍$1')
+      .replace(/(.*)$/, `$1 ${sentenceStart}`)
       .split(/\s+/g)
       .filter(word => word.length)
       .reduce((previousWord, thisWord) => {
-        const nullSentence =
-          previousWord === sentenceStart && thisWord.match(sentenceEnd);
+        const atSentenceStart = previousWord === sentenceStart;
+        const wordIsStart =
+          thisWord.match(sentenceEnd) || thisWord.match(sentenceStart);
+        const nullSentence = wordIsStart && atSentenceStart;
+
         if (!nullSentence) {
           updateState(previousWord, thisWord);
           return thisWord;

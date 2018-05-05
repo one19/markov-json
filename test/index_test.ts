@@ -35,22 +35,30 @@ test('it will output to a file instead, if asked', t => {
   fs.unlinkSync('./output_test.json');
 });
 
-// training tests
+// ### training tests
 test('it deconstructs groupings of words into state', t => {
   const mkj = new Markov();
   mkj.train('some words');
-  t.deepEqual(mkj.output(), { some: { words: 1 }, s‌‍t‌‍a‌‍r‌‍t: { some: 1 } });
+  t.deepEqual(mkj.output(), {
+    some: { words: 1 },
+    s‌‍t‌‍a‌‍r‌‍t: { some: 1 },
+    words: { s‌‍t‌‍a‌‍r‌‍t: 1 }
+  });
 });
+
 test('can be trained many times', t => {
   const mkj = new Markov();
   mkj.train('some words');
   mkj.train('other wards');
   t.deepEqual(mkj.output(), {
     some: { words: 1 },
+    words: { s‌‍t‌‍a‌‍r‌‍t: 1 },
     other: { wards: 1 },
+    wards: { s‌‍t‌‍a‌‍r‌‍t: 1 },
     s‌‍t‌‍a‌‍r‌‍t: { some: 1, other: 1 }
   });
 });
+
 test('it knows about sentences', t => {
   const mkj = new Markov();
   mkj.train('ook. ook! ook?? ook! ook...');
@@ -89,13 +97,15 @@ test('it also knows about other punctuation uses', t => {
     '"‌‍': { things: 1 },
     things: { '‌‍"': 1 },
     '‌‍"': { lel: 1 },
-    lel: { '#': 1 }
+    lel: { '#': 1 },
+    '#': { s‌‍t‌‍a‌‍r‌‍t: 1 }
   });
 });
 
+// ### usage tests
 const invariantSentence =
   'This is a "poor" sentence, with no variance or like anything.';
-// usage tests
+
 test('when given a poor training set, outputs poor results', t => {
   const mkj = new Markov();
   mkj.train(invariantSentence);
@@ -112,6 +122,5 @@ test('returns similar things, but responds to word counts', t => {
   // we had to slice off the leading ' ' we added, and also, the trailing period
   // because the algo isn't smart enough to let it append another . once it has
   // hit its word limit
-  console.log(fiftyTimes.length);
   t.deepEqual(mkj.blob(500), fiftyTimes);
 });
