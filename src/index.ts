@@ -9,18 +9,18 @@ const endPunc = /\b([^‌‍\.!?a-zA-Z0-9]+ )/g;
 const anyEndPunc = /[\.!?]+$/;
 const wordLike = /[^‌‍][a-zA-Z0-9]+/g;
 
-type markovWord = {
+export type markovWord = {
   [nextword: string]: number;
 };
-interface State {
+export interface State {
   [key: string]: markovWord;
 }
-interface Config {
+export interface Config {
   complexity: number;
 }
 
-type MainInput = string | State;
-type Options = {
+export type MainInput = string | State;
+export type Options = {
   complexity: number;
 };
 

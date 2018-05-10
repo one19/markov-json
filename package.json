@@ -2,6 +2,14 @@
   "name": "markov-json",
   "version": "0.1.6",
   "description": "markov chain generator/saver/trainer",
+  "keywords": [
+    "markov",
+    "typescript",
+    "json",
+    "probability",
+    "chain",
+    "text"
+  ],
   "main": "dist/index.js",
   "repository": "git@github.com:one19/markov-json.git",
   "author": "Drew Showalter <maelstroswim@gmail.com>",
