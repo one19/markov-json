@@ -15,13 +15,22 @@ type markovWord = {
 interface State {
   [key: string]: markovWord;
 }
+interface Config {
+  complexity: number;
+}
+
 type MainInput = string | State;
+type Options = {
+  complexity: number;
+};
 
 export default class Markov {
   state: State = {};
+  config: Config = { complexity: 1 };
 
-  constructor(main: MainInput = {}) {
+  constructor(main: MainInput = {}, options: Options = { complexity: 1 }) {
     let defaultState = main;
+
     if (typeof main === 'string') {
       try {
         const file = fs.readFileSync(main, 'utf8');
@@ -30,6 +39,11 @@ export default class Markov {
         console.log('failed to parse; continuing.');
       }
     }
+
+    const { complexity = 1 } = options;
+    if (typeof complexity === 'number' && complexity >= 0)
+      this.config.complexity = complexity;
+
     this.state = typeof defaultState === 'object' ? defaultState : {};
   }
 
@@ -142,7 +156,9 @@ export default class Markov {
   private updateState = (startWord: string, nextWord: string) => {
     this.state[startWord]
       ? this.state[startWord][nextWord]
-        ? (this.state[startWord][nextWord] += 1)
+        ? this.config.complexity <= 1
+          ? (this.state[startWord][nextWord] += this.config.complexity)
+          : (this.state[startWord][nextWord] *= this.config.complexity)
         : (this.state[startWord][nextWord] = 1)
       : (this.state[startWord] = { [nextWord]: 1 });
   };

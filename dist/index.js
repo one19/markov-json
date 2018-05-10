@@ -9,10 +9,12 @@ var endPunc = /\b([^‌‍\.!?a-zA-Z0-9]+ )/g;
 var anyEndPunc = /[\.!?]+$/;
 var wordLike = /[^‌‍][a-zA-Z0-9]+/g;
 var Markov = (function () {
-    function Markov(main) {
+    function Markov(main, options) {
         if (main === void 0) { main = {}; }
+        if (options === void 0) { options = { complexity: 1 }; }
         var _this = this;
         this.state = {};
+        this.config = { complexity: 1 };
         this.output = function (filepath) {
             if (filepath) {
                 fs.writeFileSync(filepath, JSON.stringify(_this.state, null, 2));
@@ -101,7 +103,9 @@ var Markov = (function () {
         this.updateState = function (startWord, nextWord) {
             _this.state[startWord]
                 ? _this.state[startWord][nextWord]
-                    ? (_this.state[startWord][nextWord] += 1)
+                    ? _this.config.complexity <= 1
+                        ? (_this.state[startWord][nextWord] += _this.config.complexity)
+                        : (_this.state[startWord][nextWord] *= _this.config.complexity)
                     : (_this.state[startWord][nextWord] = 1)
                 : (_this.state[startWord] = (_a = {}, _a[nextWord] = 1, _a));
             var _a;
@@ -116,6 +120,9 @@ var Markov = (function () {
                 console.log('failed to parse; continuing.');
             }
         }
+        var _a = options.complexity, complexity = _a === void 0 ? 1 : _a;
+        if (typeof complexity === 'number' && complexity >= 0)
+            this.config.complexity = complexity;
         this.state = typeof defaultState === 'object' ? defaultState : {};
     }
     return Markov;

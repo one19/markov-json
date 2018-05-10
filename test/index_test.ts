@@ -8,14 +8,17 @@ test('is a classy function', t => {
 });
 
 test('is able to be instantiated', t => {
-  t.deepEqual(JSON.stringify(new Markov()), '{"state":{}}');
+  t.deepEqual(
+    JSON.stringify(new Markov()),
+    '{"state":{},"config":{"complexity":1}}'
+  );
 });
 
 test('can be instantiated with a valid json file instead', t => {
   fs.writeFileSync('./input_test.json', '{ "word": { "none": 1 } }');
   t.deepEqual(
     JSON.stringify(new Markov('./input_test.json')),
-    '{"state":{"word":{"none":1}}}'
+    '{"state":{"word":{"none":1}},"config":{"complexity":1}}'
   );
   fs.unlinkSync('input_test.json');
 });
@@ -23,10 +26,9 @@ test('can be instantiated with a valid json file instead', t => {
 test('can be instantiated with object', t => {
   t.deepEqual(
     JSON.stringify(new Markov({ dingle: { bop: 1 } })),
-    '{"state":{"dingle":{"bop":1}}}'
+    '{"state":{"dingle":{"bop":1}},"config":{"complexity":1}}'
   );
 });
-
 
 // ### functionality tests
 test('has an export function', t => {
@@ -43,7 +45,6 @@ test('it will output to a file instead, if asked', t => {
   );
   fs.unlinkSync('./output_test.json');
 });
-
 
 // ### training tests
 test('it deconstructs groupings of words into state', t => {
@@ -129,7 +130,6 @@ test('it also knows about other punctuation uses', t => {
   });
 });
 
-
 // ### usage tests
 const invariantSentence =
   'This is a "poor" sentence, with no variance or like anything.';
@@ -153,8 +153,10 @@ test('returns similar things, but responds to word counts', t => {
   t.deepEqual(mkj.blob(500), fiftyTimes);
 });
 
-
 // ### complexity tests
+// All tests in here will use a sample size of at least 50k
+// and deviance is expected to fall less < 5% (shooting for <= 1%)
+//
 // for training purposes, let's use one of the greats:
 // Mary Shelley's Frankenstein from project gutenberg
 // <https://www.gutenberg.org/files/84/84-0.txt>
@@ -213,4 +215,55 @@ test('distribution of output chars should be no more than 1% off, given large da
       // console.log(`character|${character}|mk|${mkjsHistogram[character].toFixed(4)}|sh|${shellyGram[character].toFixed(4)}|-diff|${diff}`);
       t.true(diff <= 0.01);
     });
+});
+
+test('output distribution should not be influenced by frequency at complexity = 0', t => {
+  const mkjs = new Markov(undefined, { complexity: 0 });
+  // `this.` is a super common pairing, so in complexity 1, it would show up often
+  // but given complexity 0, the sequence will be roughly 50/50 `this.` and `axle.`
+  const highFreqSentence =
+    'this. this. this. this. axle. this. this. this. this. this.';
+  mkjs.train(highFreqSentence);
+
+  const result = mkjs.blob(50000);
+  const thisCount = result.match(/this/gi).length;
+  const axleCount = result.match(/axle/gi).length;
+
+  t.true(Math.abs(thisCount - axleCount) / 50000 <= 0.01);
+});
+
+test('distribution should weight heavily towards repeats as n+ > 1', t => {
+  const discreteSentence =
+    'two. two. three. three. three. ones. four. four. four. four.';
+  const words = [/ones/gi, /two/gi, /three/gi, /four/gi];
+
+  const mkjs2 = new Markov(undefined, { complexity: 2 });
+  const mkjs3 = new Markov(undefined, { complexity: 3 });
+  const mkjs100k = new Markov(undefined, { complexity: 100000 });
+
+  mkjs2.train(discreteSentence);
+  mkjs3.train(discreteSentence);
+  mkjs100k.train(discreteSentence);
+
+  const output2 = mkjs2.blob(50000);
+  const output3 = mkjs3.blob(50000);
+  const output100k = mkjs100k.blob(50000);
+
+  const all2 = 2 ** 1 + 2 ** 2 + 2 ** 3 + 2 ** 4;
+  const all3 = 3 ** 1 + 3 ** 2 + 3 ** 3 + 3 ** 4;
+  [0, 1, 2, 3].map(i => {
+    // output distribution approximates (complexity^repetitions)
+    // when complexity isn't set at 0 or 1,
+    // which use totally random, and geometric algorithms respectively
+    const diff2 = output2.match(words[i]).length - 2 ** (i + 1) * 50000 / all2;
+    const diff3 = output3.match(words[i]).length - 3 ** (i + 1) * 50000 / all3;
+
+    t.true(Math.abs(diff2) / 12500 <= 0.01);
+    t.true(Math.abs(diff3) / 12500 <= 0.01);
+
+    // on extremely high powers, it's very very likely only
+    // the most populous expression will be returned in the output
+    if (i < 3) t.true((output100k.match(words[i]) || []).length < 5);
+    if (i === 3) t.true(output100k.match(words[i]).length > 49995);
+  });
 });
