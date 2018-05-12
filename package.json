@@ -17,16 +17,14 @@
   "private": false,
   "scripts": {
     "test": "ava-ts test",
-    "build": "tsc -d true",
     "lint": "eslint . --ext '.ts' --fix",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
-    "precommit": "lint-staged"
+    "precommit": "tsc -d -p . && lint-staged"
   },
   "lint-staged": {
     "*.{ts,js}": [
-      "tsc",
       "eslint --fix",
-      "git add"
+      "git add dist"
     ]
   },
   "dependencies": {},
