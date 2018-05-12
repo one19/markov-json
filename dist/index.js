@@ -128,4 +128,6 @@ var Markov = (function () {
     return Markov;
 }());
 exports["default"] = Markov;
+module.exports = Markov;
+module.exports["default"] = Markov;
 //# sourceMappingURL=index.js.map

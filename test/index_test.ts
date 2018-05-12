@@ -251,15 +251,15 @@ test('distribution should weight heavily towards repeats as n+ > 1', t => {
 
   const all2 = 2 ** 1 + 2 ** 2 + 2 ** 3 + 2 ** 4;
   const all3 = 3 ** 1 + 3 ** 2 + 3 ** 3 + 3 ** 4;
-  [0, 1, 2, 3].map(i => {
+  [0, 1, 2, 3].forEach(i => {
     // output distribution approximates (complexity^repetitions)
     // when complexity isn't set at 0 or 1,
     // which use totally random, and geometric algorithms respectively
     const diff2 = output2.match(words[i]).length - 2 ** (i + 1) * 50000 / all2;
     const diff3 = output3.match(words[i]).length - 3 ** (i + 1) * 50000 / all3;
 
-    t.true(Math.abs(diff2) / 12500 <= 0.01);
-    t.true(Math.abs(diff3) / 12500 <= 0.01);
+    t.true(Math.abs(diff2) / 50000 <= 0.01);
+    t.true(Math.abs(diff3) / 50000 <= 0.01);
 
     // on extremely high powers, it's very very likely only
     // the most populous expression will be returned in the output

@@ -163,3 +163,6 @@ export default class Markov {
       : (this.state[startWord] = { [nextWord]: 1 });
   };
 }
+
+module.exports = Markov;
+module.exports.default = Markov;

@@ -17,6 +17,7 @@
   "private": false,
   "scripts": {
     "test": "ava-ts test",
+    "build": "tsc -d true",
     "lint": "eslint . --ext '.ts' --fix",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "precommit": "lint-staged"
