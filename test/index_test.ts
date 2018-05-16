@@ -1,6 +1,6 @@
 import test from 'ava';
 import * as fs from 'fs';
-import { default as Markov } from '../src';
+import Markov from '../src';
 
 // ### instantiation tests
 test('is a classy function', t => {
@@ -21,6 +21,13 @@ test('can be instantiated with a valid json file instead', t => {
     '{"state":{"word":{"none":1}},"config":{"complexity":1}}'
   );
   fs.unlinkSync('input_test.json');
+});
+
+test("semi-quietly continues if file isn't valid", t => {
+  t.deepEqual(
+    JSON.stringify(new Markov('./flipleblorphf.jsopple')),
+    '{"state":{},"config":{"complexity":1}}'
+  );
 });
 
 test('can be instantiated with object', t => {

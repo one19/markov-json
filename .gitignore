@@ -1,3 +1,7 @@
 node_modules
-*.log
+.nyc_output
+dist/test
+dist/src
 **/*.map
+coverage
+*.log
