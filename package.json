@@ -20,7 +20,8 @@
     "coverage": "tsc && nyc --reporter=html ava dist/test",
     "lint": "eslint . --ext '.ts' --fix",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
-    "precommit": "tsc -d -p . && lint-staged"
+    "precommit": "tsc -d -p . && lint-staged",
+    "prepush": "snyk test && yarn test"
   },
   "lint-staged": {
     "*.{ts,js}": [
