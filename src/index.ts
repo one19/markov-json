@@ -135,7 +135,9 @@ export default class Markov {
     const { state = {} } = this;
 
     const nextWords = Object.keys(state[thisWord]);
-    const nextWordValues = Object.values(state[thisWord]);
+    const nextWordValues = Object.keys(state[thisWord]).map(
+      key => state[thisWord][key]
+    );
     const totalValues = nextWordValues.reduce((total, val) => total + val, 0);
 
     // this could be solved with a reduce, but that would iterate all.
