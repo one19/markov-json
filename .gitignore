@@ -1,7 +1,6 @@
 node_modules
 .nyc_output
-dist/test
-dist/src
 **/*.map
 coverage
 *.log
+dist

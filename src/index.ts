@@ -31,7 +31,7 @@ export default class Markov {
   constructor(main: MainInput = {}, options: Options = { complexity: 1 }) {
     let defaultState = main;
 
-    if (typeof main === 'string') {
+    if (typeof main === 'string' && fs && fs.readFileSync) {
       try {
         const file = fs.readFileSync(main, 'utf8');
         defaultState = JSON.parse(file);
@@ -48,7 +48,7 @@ export default class Markov {
   }
 
   output = (filepath?: string): void | State => {
-    if (filepath) {
+    if (filepath && fs && fs.writeFileSync) {
       fs.writeFileSync(filepath, JSON.stringify(this.state, null, 2));
     } else {
       return this.state;
@@ -135,7 +135,9 @@ export default class Markov {
     const { state = {} } = this;
 
     const nextWords = Object.keys(state[thisWord]);
-    const nextWordValues = Object.values(state[thisWord]);
+    const nextWordValues = Object.keys(state[thisWord]).map(
+      key => state[thisWord][key]
+    );
     const totalValues = nextWordValues.reduce((total, val) => total + val, 0);
 
     // this could be solved with a reduce, but that would iterate all.
