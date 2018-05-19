@@ -16,10 +16,12 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "test": "ava-ts test",
+    "test": "tsc && ava dist/test",
+    "coverage": "tsc && nyc ava dist/test && nyc report --reporter=html",
     "lint": "eslint . --ext '.ts' --fix",
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
-    "precommit": "tsc -d -p . && lint-staged"
+    "precommit": "tsc -d -p . && lint-staged",
+    "prepush": "snyk test && yarn test"
   },
   "lint-staged": {
     "*.{ts,js}": [
@@ -30,8 +32,7 @@
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^9.6.0",
-    "ava": "^1.0.0-beta.3",
-    "ava-ts": "^0.24.3",
+    "ava": "^1.0.0-beta.4",
     "eslint": "^4.19.1",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.11.0",
@@ -40,6 +41,7 @@
     "eslint-plugin-promise": "^3.7.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.0.4",
+    "nyc": "^11.8.0",
     "prettier": "^1.12.1",
     "prettier-eslint": "^8.8.1",
     "ts-node": "^6.0.0",
