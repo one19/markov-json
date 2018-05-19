@@ -21,7 +21,7 @@ export interface Config {
 
 export type MainInput = string | State;
 export type Options = {
-  complexity: number;
+  complexity: any;
 };
 
 export default class Markov {

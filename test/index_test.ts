@@ -111,6 +111,20 @@ test('refuses to allow unending sentences to run forever', t => {
   t.true(sentence.length <= 5 * 2000);
 });
 
+test('also refuses to allow blobs to run forever', t => {
+  const mkj = new Markov();
+  const noEndSentence =
+    'each word four char long this time runs lots over four ever';
+
+  const longNoEndInput = Array(10000)
+    .fill(0)
+    .reduce(ret => ret + ' ' + noEndSentence, '');
+  mkj.train(longNoEndInput);
+  // default output constraint is 2000 words: 4 length + 1 space
+  const sentence = mkj.blob();
+  t.true(sentence.length === 119 * 5 - 1);
+});
+
 test('it also knows about other punctuation uses', t => {
   const mkj = new Markov();
   mkj.train('some words, -other stuff- Also "things" lel #');
@@ -237,6 +251,21 @@ test('output distribution should not be influenced by frequency at complexity = 
   const axleCount = result.match(/axle/gi).length;
 
   t.true(Math.abs(thisCount - axleCount) / 50000 <= 0.01);
+});
+
+test('defaults to complexity 1 for dumb answers to complexity #', t => {
+  const mkjs = new Markov(undefined, { complexity: 'blorf' });
+
+  const highFreqSentence =
+    'this. this. this. this. axle. this. this. this. this. this.';
+  mkjs.train(highFreqSentence);
+
+  const result = mkjs.blob(50000);
+  const thisCount = result.match(/this/gi).length;
+  const axleCount = result.match(/axle/gi).length;
+
+  t.true(Math.abs(5000 - axleCount) / 50000 <= 0.01);
+  t.true(Math.abs(45000 - thisCount) / 50000 <= 0.01);
 });
 
 test('distribution should weight heavily towards repeats as n+ > 1', t => {
