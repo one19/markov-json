@@ -1,6 +1,6 @@
 # MARKOV-JSON
 
-[![Maintenance status](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/maintained.svg?sanitize=true)](https://github.com/one19/project-status) [![published on npm!](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/npm.svg?sanitize=true)](https://www.npmjs.com/package/markov-json) [![Very unstable code](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/maintenance.svg?sanitize=true)](https://github.com/one19/project-status) [![Known Vulnerabilities](https://snyk.io/test/github/one19/markov-json/badge.svg)](https://snyk.io/test/github/one19/markov-json) [![Testing Status](https://travis-ci.org/one19/markov-json.svg?branch=master)](https://travis-ci.org/one19/markov-json)
+[![Maintenance status](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/maintained.svg?sanitize=true)](https://github.com/one19/project-status) [![published on npm!](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/npm.svg?sanitize=true)](https://www.npmjs.com/package/markov-json) [![Very unstable code](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/maintenance.svg?sanitize=true)](https://github.com/one19/project-status) [![Known Vulnerabilities](https://snyk.io/test/github/one19/markov-json/badge.svg)](https://snyk.io/test/github/one19/markov-json) [![Testing Status](https://travis-ci.org/one19/markov-json.svg?branch=master)](https://travis-ci.org/one19/markov-json) [![codecov](https://codecov.io/gh/one19/markov-json/branch/master/graph/badge.svg)](https://codecov.io/gh/one19/markov-json)
 
 
 ---
@@ -33,7 +33,7 @@ console.log(mk.sentence(50));
 console.timeEnd('allOps');
 ```
 
-It's also **fully tested to be hideously accurate**. When given Frankenstein, it outputs a distribution of characters _including punctuation_ less than 1% off of the input novel when outputting 50,000 words, check out the test! This test [that would qualify for nanowrimo](https://nanowrimo.org/) is usually output in less than 7 seconds!
+It's also **fully tested to be hideously accurate**. When given Frankenstein, it outputs a distribution of characters _including punctuation_ less than 1% off of the input novel when outputting 50,000 words, [check out the test](https://github.com/one19/markov-json/blob/90a58e595fb2b70175a9af9b3876562093511c8e/test/index_test.ts#L214)! This test [that would qualify for nanowrimo](https://nanowrimo.org/) is usually output in less than 7 seconds!
 
 Other libs just can't live up.
 
