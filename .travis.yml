@@ -1,12 +1,15 @@
 language: node_js
-
+sudo: false
 node_js:
   - '8'
-
 install:
   - yarn
-
+  - npm i codecov -g
 cache:
   yarn: true
   directories:
     - node_modules
+script:
+  - tsc && nyc ava dist/test
+after_success:
+  - nyc report --reporter=text-lcov > coverage.lcov && codecov
