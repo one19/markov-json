@@ -45,12 +45,14 @@ You instantiate it:
 
 ```js
   import default as Markov from 'markov-json';
-  const mkj = new Markov();
+  // also supports `import Markov from 'markov-json';`
+  // also also supports `const Markov = require('markov-json');`
+  const mkjs = new Markov();
 ```
 
 or, if you've already got a file /made with this library/ to parse:
 ```js
-const mkj = new Markov('./thatcrazymarkov.json');
+const mkjs = new Markov('./thatcrazymarkov.json');
 ```
 
 or, if you've already got a valid option, you can just use it too, probably on a frontend somewhere:
