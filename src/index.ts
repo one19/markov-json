@@ -55,6 +55,11 @@ export default class Markov {
     }
   };
 
+  setComplexity = (complexity?: number): void => {
+    if (typeof complexity === 'number' && complexity >= 0)
+      this.config.complexity = complexity;
+  };
+
   train = (text: string): void => {
     const { updateState } = this;
 
@@ -123,8 +128,10 @@ export default class Markov {
     return this.cleanUp(dialogue);
   };
 
-  // replace our crazy start thing with nothing
-  // our crazy punctuation directionality thingies with nothing
+  /*
+  / replaces our crazy "start" word and our
+  / crazy punctuation directionality markers with nothing
+  */
   private cleanUp = (dialoge: string): string =>
     dialoge
       .replace(/\s*s‌‍t‌‍a‌‍r‌‍t/g, '')
@@ -132,24 +139,35 @@ export default class Markov {
       .replace(/(\s*‌‍\s*)/g, '');
 
   private getNextWord = (thisWord: string): string => {
-    const { state = {} } = this;
+    const {
+      state,
+      config: { complexity }
+    } = this;
 
     const nextWords = Object.keys(state[thisWord]);
     const nextWordValues = Object.keys(state[thisWord]).map(
       key => state[thisWord][key]
     );
-    const totalValues = nextWordValues.reduce((total, val) => total + val, 0);
 
-    // this could be solved with a reduce, but that would iterate all.
-    // trying a while instead for early exit at foundindex
-    let valueMass = 0;
+    /*
+    / this could be solved with a reduce, but that would iterate all.
+    / while will exit early at the index we randomly land on
+    / we cut further by recursing up or down from the middle point
+    / but i'm pretty lazy, and the savings might be minimal
+    */
     let index = 0;
+    let valueMass = 0;
     let nextWord = '';
+
+    const totalValues = nextWordValues.reduce(
+      (total, val) => total + val ** complexity,
+      0
+    );
     const randomSelection = Math.floor(totalValues * Math.random());
 
     while (valueMass <= randomSelection) {
       nextWord = nextWords[index];
-      valueMass += nextWordValues[index];
+      valueMass += nextWordValues[index] ** complexity;
       index++;
     }
     return nextWord;
@@ -158,9 +176,7 @@ export default class Markov {
   private updateState = (startWord: string, nextWord: string) => {
     this.state[startWord]
       ? this.state[startWord][nextWord]
-        ? this.config.complexity <= 1
-          ? (this.state[startWord][nextWord] += this.config.complexity)
-          : (this.state[startWord][nextWord] *= this.config.complexity)
+        ? (this.state[startWord][nextWord] += 1)
         : (this.state[startWord][nextWord] = 1)
       : (this.state[startWord] = { [nextWord]: 1 });
   };

@@ -43,6 +43,24 @@ test('has an export function', t => {
   t.deepEqual(mkj.output(), {});
 });
 
+test('defaults to complexity 1 for dumb answers to complexity #', t => {
+  const mkjs = new Markov(undefined, { complexity: 'blorf' });
+  const internals = JSON.parse(JSON.stringify(mkjs));
+  t.deepEqual(internals.config, { complexity: 1 });
+
+  // also works for negative numbers
+  mkjs.setComplexity(-1);
+  const negativeInternal = JSON.parse(JSON.stringify(mkjs));
+  t.deepEqual(internals.config, { complexity: 1 });
+});
+
+test('defaults to complexity when not given one', t => {
+  // @ts-ignore
+  const mkjs = new Markov(undefined, {});
+  const internals = JSON.parse(JSON.stringify(mkjs));
+  t.deepEqual(internals.config, { complexity: 1 });
+});
+
 test('it will output to a file instead, if asked', t => {
   const thismkjOfMine = new Markov();
   t.deepEqual(thismkjOfMine.output('./output_test.json'), undefined);
@@ -204,14 +222,16 @@ const histogrammify = (charsArray: string[]) =>
   );
 
 const fstein = fs.readFileSync('test/frankenstein.txt', 'utf8');
+// her novel has lots of empty spaces, and our this tool doesn't understand paragraphs... yet
 const chars = fstein
-  .replace(/[‌‍\xa0\x00-\x09\x0b\x0c\x0e-\x1f\x7f\t\n]/g, ' ')
+  .replace(/[\t\n]/g, '')
+  .replace(/[\s]+/gi, ' ')
   .toLowerCase()
   .split('');
 
 const shellyGram: Histogram = histogrammify(chars);
 
-test('distribution of output chars should be no more than 1% off, given large datasets', t => {
+test('distribution of output chars should be no more than 1.5% off, given large datasets', t => {
   const mkjs = new Markov();
   console.time('trained in');
   mkjs.train(fstein);
@@ -229,12 +249,10 @@ test('distribution of output chars should be no more than 1% off, given large da
   Object.keys(mkjsHistogram)
     .sort((a, b) => (mkjsHistogram[a] > mkjsHistogram[b] ? 1 : -1))
     .forEach(character => {
-      const diff = Math.abs(
-        (shellyGram[character] || 0) - mkjsHistogram[character]
-      );
+      const diff = Math.abs(shellyGram[character] - mkjsHistogram[character]);
 
-      // console.log(`character|${character}|mk|${mkjsHistogram[character].toFixed(4)}|sh|${shellyGram[character].toFixed(4)}|-diff|${diff}`);
-      t.true(diff <= 0.01);
+      // console.log(`character|${character}|mk|${mkjsHistogram[character].toFixed(4)}|sh|${shellyGram[character].toFixed(4)}|-diff|${diff.toFixed(4)}`);
+      t.true(diff <= 0.015);
     });
 });
 
@@ -253,9 +271,10 @@ test('output distribution should not be influenced by frequency at complexity = 
   t.true(Math.abs(thisCount - axleCount) / 50000 <= 0.01);
 });
 
-test('defaults to complexity 1 for dumb answers to complexity #', t => {
-  const mkjs = new Markov(undefined, { complexity: 'blorf' });
-
+test('complexity can be set on the fly, regardless of training complexity', t => {
+  const mkjs = new Markov(undefined, { complexity: 0 });
+  // `this.` is a super common pairing, so in complexity 1, it would show up often
+  // but given complexity 0, the sequence will be roughly 50/50 `this.` and `axle.`
   const highFreqSentence =
     'this. this. this. this. axle. this. this. this. this. this.';
   mkjs.train(highFreqSentence);
@@ -264,8 +283,14 @@ test('defaults to complexity 1 for dumb answers to complexity #', t => {
   const thisCount = result.match(/this/gi).length;
   const axleCount = result.match(/axle/gi).length;
 
-  t.true(Math.abs(5000 - axleCount) / 50000 <= 0.01);
-  t.true(Math.abs(45000 - thisCount) / 50000 <= 0.01);
+  t.true(Math.abs(thisCount - axleCount) / 50000 <= 0.015);
+
+  mkjs.setComplexity(1);
+  const linearOutput = mkjs.blob(50000);
+  const thisLinear = linearOutput.match(/this/gi).length;
+  const axleLinear = linearOutput.match(/axle/gi).length;
+
+  t.true(Math.abs(thisLinear / axleLinear) - 9 <= 0.15);
 });
 
 test('distribution should weight heavily towards repeats as n+ > 1', t => {
@@ -275,31 +300,29 @@ test('distribution should weight heavily towards repeats as n+ > 1', t => {
 
   const mkjs2 = new Markov(undefined, { complexity: 2 });
   const mkjs3 = new Markov(undefined, { complexity: 3 });
-  const mkjs100k = new Markov(undefined, { complexity: 100000 });
+  const mkjs200 = new Markov(undefined, { complexity: 200 });
 
   mkjs2.train(discreteSentence);
   mkjs3.train(discreteSentence);
-  mkjs100k.train(discreteSentence);
+  mkjs200.train(discreteSentence);
 
   const output2 = mkjs2.blob(50000);
   const output3 = mkjs3.blob(50000);
-  const output100k = mkjs100k.blob(50000);
+  const output200 = mkjs200.blob(50000);
 
-  const all2 = 2 ** 1 + 2 ** 2 + 2 ** 3 + 2 ** 4;
-  const all3 = 3 ** 1 + 3 ** 2 + 3 ** 3 + 3 ** 4;
-  [0, 1, 2, 3].forEach(i => {
-    // output distribution approximates (complexity^repetitions)
-    // when complexity isn't set at 0 or 1,
-    // which use totally random, and geometric algorithms respectively
-    const diff2 = output2.match(words[i]).length - 2 ** (i + 1) * 50000 / all2;
-    const diff3 = output3.match(words[i]).length - 3 ** (i + 1) * 50000 / all3;
+  const all2 = 1 + 2 ** 2 + 3 ** 2 + 4 ** 2;
+  const all3 = 1 + 2 ** 3 + 3 ** 3 + 4 ** 3;
+  [1, 2, 3, 4].forEach(i => {
+    // output distribution approximates (repetitions^complexity)
+    const diff2 = output2.match(words[i - 1]).length - i ** 2 * 50000 / all2;
+    const diff3 = output3.match(words[i - 1]).length - i ** 3 * 50000 / all3;
 
-    t.true(Math.abs(diff2) / 50000 <= 0.01);
-    t.true(Math.abs(diff3) / 50000 <= 0.01);
+    t.true(Math.abs(diff2) / 50000 <= 0.015);
+    t.true(Math.abs(diff3) / 50000 <= 0.015);
 
     // on extremely high powers, it's very very likely only
     // the most populous expression will be returned in the output
-    if (i < 3) t.true((output100k.match(words[i]) || []).length < 5);
-    if (i === 3) t.true(output100k.match(words[i]).length > 49995);
+    if (i < 3) t.true((output200.match(words[i]) || []).length < 5);
+    if (i === 3) t.true(output200.match(words[i]).length > 49995);
   });
 });
