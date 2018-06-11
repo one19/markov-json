@@ -6,12 +6,15 @@ node_js:
   - '6'
 install:
   - yarn
-  - npm i codecov -g
 cache:
   yarn: true
   directories:
     - node_modules
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script:
-  - tsc && nyc ava dist/test
+  - tsc && nyc --reporter=lcov ava dist/test
 after_success:
-  - nyc report --reporter=text-lcov > coverage.lcov && codecov
+  - ./cc-test-reporter after-build -t lcov --exit-code $TRAVIS_TEST_RESULT
