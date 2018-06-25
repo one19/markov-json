@@ -245,7 +245,7 @@ test('distribution of output chars should be no more than 1.5% off, given large 
     bigBlob.toLowerCase().split('')
   );
 
-  // comparing characters, our big output should be no more than 5% off on any of them
+  // comparing characters, our big output should be no more than 1.5% off on any of them
   Object.keys(mkjsHistogram)
     .sort((a, b) => (mkjsHistogram[a] > mkjsHistogram[b] ? 1 : -1))
     .forEach(character => {
