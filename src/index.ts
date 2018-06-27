@@ -24,27 +24,31 @@ export type Options = {
   complexity: any;
 };
 
+const readJSONToState = (filePath: string): State => {
+  let state = {};
+  if (fs && fs.readFileSync) {
+    try {
+      const file = fs.readFileSync(filePath, 'utf8');
+      state = JSON.parse(file);
+    } catch (_) {
+      console.log('failed to parse; continuing.');
+    }
+  }
+  return state;
+};
+
 export default class Markov {
   state: State = {};
   config: Config = { complexity: 1 };
 
   constructor(main: MainInput = {}, options: Options = { complexity: 1 }) {
     let defaultState = main;
-
-    if (typeof main === 'string' && fs && fs.readFileSync) {
-      try {
-        const file = fs.readFileSync(main, 'utf8');
-        defaultState = JSON.parse(file);
-      } catch (_) {
-        console.log('failed to parse; continuing.');
-      }
-    }
+    if (typeof main === 'string') defaultState = readJSONToState(main);
+    this.state = typeof defaultState === 'object' ? defaultState : {};
 
     const { complexity = 1 } = options;
     if (typeof complexity === 'number' && complexity >= 0)
       this.config.complexity = complexity;
-
-    this.state = typeof defaultState === 'object' ? defaultState : {};
   }
 
   output = (filepath?: string): void | State => {
