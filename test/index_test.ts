@@ -128,6 +128,17 @@ test('refuses to allow unending sentences to run forever', t => {
   const sentence = mkj.sentence(234);
   t.true(sentence.length <= 5 * 2000);
 });
+test('has an alias for outputting multiple sentences', t => {
+  const mK = new Markov();
+  mK.train('some words rhyme with orange.');
+  t.deepEqual(
+    mK
+      .sentences(15)
+      .split('.')
+      .filter(Boolean).length,
+    15
+  );
+});
 
 test('also refuses to allow blobs to run forever', t => {
   const mkj = new Markov();
@@ -141,6 +152,17 @@ test('also refuses to allow blobs to run forever', t => {
   // default output constraint is 2000 words: 4 length + 1 space
   const sentence = mkj.blob();
   t.true(sentence.length === 119 * 5 - 1);
+});
+test('has a sensible `words` alias for blob', t => {
+  const mK = new Markov();
+  mK.train('tufle fleeb, scrimpble forp mabler. "Schimble"!');
+  t.deepEqual(
+    mK
+      .words(33)
+      .split(' ')
+      .filter(Boolean).length,
+    33
+  );
 });
 
 test('it also knows about other punctuation uses', t => {

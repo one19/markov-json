@@ -90,9 +90,13 @@ export default class Markov {
 
   sentence = (numberOfSentences: number = 1): string =>
     this.reconstruct(numberOfSentences);
+  sentences = (numberOfSentences: number | undefined): string =>
+    this.sentence(numberOfSentences);
 
   blob = (numberOfWords: number = 119): string =>
     this.reconstruct(null, numberOfWords);
+  words = (numberOfWords: number | undefined): string =>
+    this.blob(numberOfWords);
 
   private reconstruct = (
     wantedSentences: number | null,

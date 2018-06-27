@@ -99,6 +99,12 @@ Alternatively, you could ask it for sentences. If the text you give it doesn't c
   mkv.sentence(NUMBER_OF_SENTENCES_YOUD_LIKE)
 ```
 
+Also, it has a little syntax sugar. You can get sentences and words and not get tripped up as easily because the methods are hard to remember!
+```js
+  mk.sentences(20) ~= mk.sentence(20);
+  mk.words(39) ~= mk.blob(39);
+```
+
 ## AFTERWARDS:
 Finally, if you'd like to store your training model someplace, it's as simple as `mkv.output('./filepath_someplace.json')`, or alternatively, you could instead get the state object by not passing it any arguments _(like, say, if you wanted to send it someplace on the internets)_ `var state = mkv.output()`.
 
