@@ -1,6 +1,6 @@
 {
   "name": "markov-json",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "simplest markov chain reader/writer/exporter",
   "keywords": [
     "markov",
