@@ -1,7 +1,7 @@
 # MARKOV-JSON
 
 [![Maintenance status](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/maintained.svg?sanitize=true)](https://github.com/one19/project-status) [![published on npm!](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/npm.svg?sanitize=true)](https://www.npmjs.com/package/markov-json) [![Stability](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/maintenance.svg?sanitize=true)](https://github.com/one19/project-status)\
-[![Known Vulnerabilities](https://snyk.io/test/github/one19/markov-json/badge.svg)](https://snyk.io/test/github/one19/markov-json) [![Testing Status](https://travis-ci.org/one19/markov-json.svg?branch=master)](https://travis-ci.org/one19/markov-json) [![Test Coverage](https://api.codeclimate.com/v1/badges/c79532f49ed91864823b/test_coverage)](https://codeclimate.com/github/one19/markov-json/test_coverage) [![Maintainability](https://api.codeclimate.com/v1/badges/c79532f49ed91864823b/maintainability)](https://codeclimate.com/github/one19/markov-json/maintainability)
+[![Known Vulnerabilities](https://snyk.io/test/github/one19/markov-json/badge.svg)](https://snyk.io/test/github/one19/markov-json) [![Testing Status](https://travis-ci.org/one19/markov-json.svg?branch=master)](https://travis-ci.org/one19/markov-json) [![Test Coverage](https://api.codeclimate.com/v1/badges/1659d014ba146934b051/test_coverage)](https://codeclimate.com/github/one19/markov-json/test_coverage) [![Maintainability](https://api.codeclimate.com/v1/badges/1659d014ba146934b051/maintainability)](https://codeclimate.com/github/one19/markov-json/maintainability)
 
 ---
 
@@ -13,24 +13,22 @@ A markov generator of 2 depth and variable complexity. It's made to be really re
 
 It has a whopping **zero** deps. It's **blisteringly fast**, it's decently tested, written in typescript (javascript with type safety), and keeps its state as a simple simple, easily manipulatable object.
 
-It's super small and powerful. Two months of tweets is parsed, output as a re-usable json mapping, **and** turned into random 50 sentences in less than **50ms** in the following code snippet:
+It's super small and powerful. Two months of tweets is parsed, saved to disk as a re-usable json state map, **and** turned into random 50 sentences in less than **50ms** in the following code snippet:
 
 ```js
-  const Markov = require("markov-json");
-  const twoMonths = require("./twoMonths.json");
+  const Markov = require('markov-json');
+  const twoMonths = require('./twoMonths.json');
 
-  console.time('allOps');
-  const twoMonthsText = twoMonths.reduce(
-    (res, tweet) => `${res}. ${tweet.text}`,
-    ""
-  );
+  const tweeter = new Markov();
 
-  const mk = new Markov();
-  mk.train(twoMonthsText);
-  mk.output("./map.json");
+  const twoMonthsOfTweets = twoMonths
+    .map(tweet => tweet.text)
+    .join('. ');
+  tweeter.train(twoMonthsOfTweets);
 
-  console.log(mk.sentence(50));
-  console.timeEnd('allOps');
+  tweeter.output('./map.json');
+
+  console.log(tweeter.sentence(50));
 ```
 
 It's also **fully tested to be hideously accurate**. When given Frankenstein, it outputs a distribution of characters _including punctuation_ less than 1.5% off of the input novel when outputting 50,000 words, [check out the test](https://github.com/one19/markov-json/blob/master/test/index_test.ts#L234)! This test [that would qualify for nanowrimo](https://nanowrimo.org/) is usually output in just over 5 seconds!
