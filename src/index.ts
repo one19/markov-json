@@ -17,6 +17,7 @@ export interface State {
 }
 export interface Config {
   complexity: number;
+  memo?: any;
 }
 
 export type MainInput = string | State;
@@ -41,14 +42,20 @@ export default class Markov {
   state: State = {};
   config: Config = { complexity: 1 };
 
-  constructor(main: MainInput = {}, options: Options = { complexity: 1 }) {
+  constructor(
+    main: MainInput = Object.create(null),
+    options: Options = { complexity: 1 }
+  ) {
     let defaultState = main;
     if (typeof main === 'string') defaultState = readJSONToState(main);
-    this.state = typeof defaultState === 'object' ? defaultState : {};
+    this.state =
+      typeof defaultState === 'object' ? defaultState : Object.create(null);
 
     const { complexity = 1 } = options;
-    if (typeof complexity === 'number' && complexity >= 0)
+    if (typeof complexity === 'number' && complexity >= 0) {
       this.config.complexity = complexity;
+      this.config.memo = Object.create(null);
+    }
   }
 
   output = (filepath?: string): void | State => {
@@ -60,8 +67,10 @@ export default class Markov {
   };
 
   setComplexity = (complexity?: number): void => {
-    if (typeof complexity === 'number' && complexity >= 0)
+    if (typeof complexity === 'number' && complexity >= 0) {
       this.config.complexity = complexity;
+      this.memoIze();
+    }
   };
 
   train = (text: string): void => {
@@ -90,6 +99,9 @@ export default class Markov {
 
         return previousWord;
       }, sentenceStart);
+
+    this.sortState();
+    this.memoIze();
   };
 
   sentence = (numberOfSentences: number = 1): string =>
@@ -146,16 +158,50 @@ export default class Markov {
       .slice(1)
       .replace(/(\s*‌‍\s*)/g, '');
 
+  private sortState = (): void => {
+    const { state } = this;
+
+    const sortedState = Object.create(null);
+    Object.keys(state).forEach(key => {
+      const word = state[key];
+      const sortedWord = Object.create(null);
+      const subWords = Object.keys(word).sort(
+        (a, b) => (word[a] >= word[b] ? -1 : 1)
+      );
+
+      subWords.forEach(subKey => {
+        sortedWord[subKey] = word[subKey];
+      });
+
+      sortedState[key] = sortedWord;
+    });
+
+    this.state = sortedState;
+  };
+
+  private memoIze = (): void => {
+    const {
+      config: { memo, complexity },
+      state
+    } = this;
+
+    Object.keys(state).forEach(key => {
+      const values = Object.keys(state[key]).map(
+        subKey => state[key][subKey] ** complexity
+      );
+      const sum = values.reduce((sum, value) => sum + value, 0);
+
+      memo[key] = { sum, values };
+    });
+  };
+
   private getNextWord = (thisWord: string): string => {
     const {
       state,
-      config: { complexity }
+      config: { memo }
     } = this;
 
     const nextWords = Object.keys(state[thisWord]);
-    const nextWordValues = Object.keys(state[thisWord]).map(
-      key => state[thisWord][key]
-    );
 
     /*
     / this could be solved with a reduce, but that would iterate all.
@@ -167,15 +213,11 @@ export default class Markov {
     let valueMass = 0;
     let nextWord = '';
 
-    const totalValues = nextWordValues.reduce(
-      (total, val) => total + val ** complexity,
-      0
-    );
-    const randomSelection = Math.floor(totalValues * Math.random());
+    const randomSelection = Math.floor(memo[thisWord].sum * Math.random());
 
     while (valueMass <= randomSelection) {
       nextWord = nextWords[index];
-      valueMass += nextWordValues[index] ** complexity;
+      valueMass += memo[thisWord].values[index];
       index++;
     }
     return nextWord;
