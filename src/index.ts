@@ -9,15 +9,24 @@ const endPunc = /\b([^‌‍\.!?a-zA-Z0-9]+ )/g;
 const anyEndPunc = /[\.!?]+$/;
 const wordLike = /[^‌‍][a-zA-Z0-9]+/g;
 
-export type markovWord = {
+export type MarkovWord = {
   [nextword: string]: number;
 };
 export interface State {
-  [key: string]: markovWord;
+  [key: string]: MarkovWord;
 }
+
+export type Memo = {
+  sum: number;
+  words: string[];
+  values: number[];
+};
+export type MemoizedState = {
+  [key: string]: Memo;
+};
 export interface Config {
   complexity: number;
-  memo?: any;
+  memo?: MemoizedState;
 }
 
 export type MainInput = string | State;
