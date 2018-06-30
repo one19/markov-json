@@ -158,6 +158,7 @@ export default class Markov {
       .slice(1)
       .replace(/(\s*‌‍\s*)/g, '');
 
+  // sort state with highest values of underlying words first
   private sortState = (): void => {
     const { state } = this;
 
@@ -179,6 +180,14 @@ export default class Markov {
     this.state = sortedState;
   };
 
+  /* create a memo object that matches state:
+  / each word will have:
+  / sum: each subword ** complexity
+  / values [subword ** complexity, ...]
+  /
+  / this means we don't have to do those ops in-situ
+  / when generating the next random word in our sequence
+  */
   private memoIze = (): void => {
     const {
       config: { memo, complexity },
@@ -205,9 +214,7 @@ export default class Markov {
 
     /*
     / this could be solved with a reduce, but that would iterate all.
-    / while will exit early at the index we randomly land on
-    / we cut further by recursing up or down from the middle point
-    / but i'm pretty lazy, and the savings might be minimal
+    / `while` will exit early at the index we randomly land on
     */
     let index = 0;
     let valueMass = 0;
@@ -228,7 +235,9 @@ export default class Markov {
       ? this.state[startWord][nextWord]
         ? (this.state[startWord][nextWord] += 1)
         : (this.state[startWord][nextWord] = 1)
-      : (this.state[startWord] = { [nextWord]: 1 });
+      : (this.state[startWord] = Object.assign(Object.create(null), {
+          [nextWord]: 1
+        }));
   };
 }
 
