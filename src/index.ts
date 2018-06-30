@@ -231,7 +231,9 @@ export default class Markov {
       ? this.state[startWord][nextWord]
         ? (this.state[startWord][nextWord] += 1)
         : (this.state[startWord][nextWord] = 1)
-      : (this.state[startWord] = { [nextWord]: 1 });
+      : (this.state[startWord] = Object.assign(Object.create(null), {
+          [nextWord]: 1
+        }));
   };
 }
 
