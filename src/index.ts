@@ -42,19 +42,15 @@ export default class Markov {
   state: State = {};
   config: Config = { complexity: 1 };
 
-  constructor(
-    main: MainInput = Object.create(null),
-    options: Options = { complexity: 1 }
-  ) {
+  constructor(main: MainInput = {}, options: Options = { complexity: 1 }) {
     let defaultState = main;
     if (typeof main === 'string') defaultState = readJSONToState(main);
-    this.state =
-      typeof defaultState === 'object' ? defaultState : Object.create(null);
+    this.state = typeof defaultState === 'object' ? defaultState : {};
 
     const { complexity = 1 } = options;
     if (typeof complexity === 'number' && complexity >= 0) {
       this.config.complexity = complexity;
-      this.config.memo = Object.create(null);
+      this.config.memo = {};
     }
   }
 
@@ -158,6 +154,7 @@ export default class Markov {
       .slice(1)
       .replace(/(\s*‌‍\s*)/g, '');
 
+  // sort state with highest values of underlying words first
   private sortState = (): void => {
     const { state } = this;
 
@@ -179,6 +176,14 @@ export default class Markov {
     this.state = sortedState;
   };
 
+  /* create a memo object that matches state:
+  / each word will have:
+  / sum: each subword ** complexity
+  / values [subword ** complexity, ...]
+  /
+  / this means we don't have to do those ops in-situ
+  / when generating the next random word in our sequence
+  */
   private memoIze = (): void => {
     const {
       config: { memo, complexity },
@@ -205,9 +210,7 @@ export default class Markov {
 
     /*
     / this could be solved with a reduce, but that would iterate all.
-    / while will exit early at the index we randomly land on
-    / we cut further by recursing up or down from the middle point
-    / but i'm pretty lazy, and the savings might be minimal
+    / `while` will exit early at the index we randomly land on
     */
     let index = 0;
     let valueMass = 0;
