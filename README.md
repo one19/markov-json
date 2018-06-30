@@ -31,7 +31,7 @@ It's super small and powerful. Two months of tweets is parsed, saved to disk as 
   console.log(tweeter.sentence(50));
 ```
 
-It's also **fully tested to be hideously accurate**. When given Frankenstein, it outputs a distribution of characters _including punctuation_ less than 1.5% off of the input novel when outputting 50,000 words, [check out the test](https://github.com/one19/markov-json/blob/master/test/index_test.ts#L234)! This test [that would qualify for nanowrimo](https://nanowrimo.org/) is usually output in just over 5 seconds!
+It's also **fully tested to be hideously accurate**. When given Frankenstein, it outputs a distribution of characters _including punctuation_ less than 1.5% off of the input novel when outputting 50,000 words, [check out the test](https://github.com/one19/markov-json/blob/master/test/index_test.ts#L234)! This test [that would qualify for nanowrimo](https://nanowrimo.org/) is usually output in just under 3 seconds! [*(Check out what little was changed to make memoization happen and boost performance by double!)*](https://github.com/one19/markov-json/pull/6)
 
 Other libs just can't live up.
 
