@@ -191,22 +191,18 @@ export default class Markov {
     } = this;
 
     Object.keys(state).forEach(key => {
-      const values = Object.keys(state[key]).map(
-        subKey => state[key][subKey] ** complexity
-      );
+      const words = Object.keys(state[key]);
+      const values = words.map(subKey => state[key][subKey] ** complexity);
       const sum = values.reduce((sum, value) => sum + value, 0);
 
-      memo[key] = { sum, values };
+      memo[key] = { sum, values, words };
     });
   };
 
   private getNextWord = (thisWord: string): string => {
     const {
-      state,
       config: { memo }
     } = this;
-
-    const nextWords = Object.keys(state[thisWord]);
 
     /*
     / this could be solved with a reduce, but that would iterate all.
@@ -214,16 +210,15 @@ export default class Markov {
     */
     let index = 0;
     let valueMass = 0;
-    let nextWord = '';
 
     const randomSelection = Math.floor(memo[thisWord].sum * Math.random());
 
     while (valueMass <= randomSelection) {
-      nextWord = nextWords[index];
       valueMass += memo[thisWord].values[index];
       index++;
     }
-    return nextWord;
+
+    return memo[thisWord].words[index - 1];
   };
 
   private updateState = (startWord: string, nextWord: string) => {
