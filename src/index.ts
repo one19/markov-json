@@ -61,6 +61,8 @@ export default class Markov {
       this.config.complexity = complexity;
       this.config.memo = {};
     }
+
+    this.memoIze();
   }
 
   output = (filepath?: string): void | State => {

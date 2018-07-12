@@ -18,7 +18,7 @@ test('can be instantiated with a valid json file instead', t => {
   fs.writeFileSync('./input_test.json', '{ "word": { "none": 1 } }');
   t.deepEqual(
     JSON.stringify(new Markov('./input_test.json')),
-    '{"state":{"word":{"none":1}},"config":{"complexity":1,"memo":{}}}'
+    '{"state":{"word":{"none":1}},"config":{"complexity":1,"memo":{"word":{"sum":1,"values":[1],"words":["none"]}}}}'
   );
   fs.unlinkSync('input_test.json');
 });
@@ -33,7 +33,7 @@ test("semi-quietly continues if file isn't valid", t => {
 test('can be instantiated with object', t => {
   t.deepEqual(
     JSON.stringify(new Markov({ dingle: { bop: 1 } })),
-    '{"state":{"dingle":{"bop":1}},"config":{"complexity":1,"memo":{}}}'
+    '{"state":{"dingle":{"bop":1}},"config":{"complexity":1,"memo":{"dingle":{"sum":1,"values":[1],"words":["bop"]}}}}'
   );
 });
 
@@ -69,6 +69,31 @@ test('it will output to a file instead, if asked', t => {
     {}
   );
   fs.unlinkSync('./output_test.json');
+});
+
+test('will output something that can be consumed and used again', t => {
+  const theTimeIBrokeIt = `
+  # https://github.com/one19/markov-json/issues/10
+  /*
+  var q = require('./json/quotes.json');
+  var q2= require('./json/quotes2.json');
+  for (var p in q) {
+          quotes.train(q[p].quote);
+          author.train(q[p].name);
+  }
+  for (var p in q2) {
+        quotes.train(q2[p].quoteText);
+        author.train(q2[p].quoteAuthor);
+  }
+  */`;
+  const mkDerp = new Markov();
+  mkDerp.train(theTimeIBrokeIt);
+  mkDerp.output('./markov-state.json');
+
+  const mkFixed = new Markov('./markov-state.json');
+  t.truthy(mkFixed.sentence().split(' ').length);
+
+  fs.unlinkSync('./markov-state.json');
 });
 
 // ### training tests
