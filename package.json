@@ -17,6 +17,9 @@
     "dist/src/index.d.ts",
     "dist/src/index.js.map"
   ],
+  "browser": {
+    "fs": false
+  },
   "repository": "git@github.com:one19/markov-json.git",
   "author": "Drew Showalter <maelstroswim@gmail.com>",
   "license": "MIT",
