@@ -17,4 +17,4 @@ before_script:
 script:
   - tsc && nyc --reporter=lcovonly ava dist/test
 after_success:
-  - ./cc-test-reporter after-build -t lcovonly --exit-code $TRAVIS_TEST_RESULT
+  - ./cc-test-reporter after-build -t lcov --exit-code $TRAVIS_TEST_RESULT
