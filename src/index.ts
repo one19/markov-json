@@ -31,7 +31,7 @@ export interface Config {
 
 export type MainInput = string | State;
 export type Options = {
-  complexity: any;
+  complexity?: number;
 };
 
 const readJSONToState = (filePath: string): State => {
@@ -40,8 +40,8 @@ const readJSONToState = (filePath: string): State => {
     try {
       const file = fs.readFileSync(filePath, 'utf8');
       state = JSON.parse(file);
-    } catch (_) {
-      console.log('failed to parse; continuing.');
+    } catch (_error) {
+      console.warn('failed to parse; continuing.');
     }
   }
   return state;
@@ -92,11 +92,10 @@ export default class Markov {
       .replace(endPunc, ' ‌‍$1')
       .replace(/(.*)$/, `$1 ${sentenceStart}`)
       .split(/\s+/g)
-      .filter(word => word.length)
+      .filter((word) => word.length)
       .reduce((previousWord, thisWord) => {
         const atSentenceStart = previousWord === sentenceStart;
-        const wordIsStart =
-          thisWord.match(sentenceEnd) || thisWord.match(sentenceStart);
+        const wordIsStart = thisWord.match(sentenceEnd) || thisWord.match(sentenceStart);
         const nullSentence = wordIsStart && atSentenceStart;
 
         if (!nullSentence) {
@@ -111,33 +110,20 @@ export default class Markov {
     this.memoIze();
   };
 
-  sentence = (numberOfSentences: number = 1): string =>
-    this.reconstruct(numberOfSentences);
-  sentences = (numberOfSentences: number | undefined): string =>
-    this.sentence(numberOfSentences);
+  sentence = (numberOfSentences: number = 1): string => this.reconstruct(numberOfSentences);
+  sentences = (numberOfSentences: number | undefined): string => this.sentence(numberOfSentences);
 
-  blob = (numberOfWords: number = 119): string =>
-    this.reconstruct(null, numberOfWords);
-  words = (numberOfWords: number | undefined): string =>
-    this.blob(numberOfWords);
+  blob = (numberOfWords: number = 119): string => this.reconstruct(null, numberOfWords);
+  words = (numberOfWords: number | undefined): string => this.blob(numberOfWords);
 
-  private reconstruct = (
-    wantedSentences: number | null,
-    wantedWords: number = 2000
-  ): string => {
+  private reconstruct = (wantedSentences: number | null, wantedWords: number = 2000): string => {
     let words = 0;
     let sentences = 0;
     let dialogue = '';
     let thisWord = `${sentenceStart}`;
-    const hasPuncts = !!Object.keys(this.state).find(
-      e => !!e.match(anyEndPunc)
-    );
+    const hasPuncts = !!Object.keys(this.state).find((e) => !!e.match(anyEndPunc));
 
-    while (
-      wantedSentences && hasPuncts
-        ? sentences <= wantedSentences
-        : words < wantedWords
-    ) {
+    while (wantedSentences && hasPuncts ? sentences <= wantedSentences : words < wantedWords) {
       const isSentenceEnd = thisWord.match(sentenceStart);
       const isWord = thisWord.match(wordLike);
 
@@ -170,14 +156,12 @@ export default class Markov {
     const { state } = this;
 
     const sortedState = Object.create(null);
-    Object.keys(state).forEach(key => {
+    Object.keys(state).forEach((key) => {
       const word = state[key];
       const sortedWord = Object.create(null);
-      const subWords = Object.keys(word).sort(
-        (a, b) => (word[a] >= word[b] ? -1 : 1)
-      );
+      const subWords = Object.keys(word).sort((a, b) => (word[a] >= word[b] ? -1 : 1));
 
-      subWords.forEach(subKey => {
+      subWords.forEach((subKey) => {
         sortedWord[subKey] = word[subKey];
       });
 
@@ -198,12 +182,12 @@ export default class Markov {
   private memoIze = (): void => {
     const {
       config: { memo, complexity },
-      state
+      state,
     } = this;
 
-    Object.keys(state).forEach(key => {
+    Object.keys(state).forEach((key) => {
       const words = Object.keys(state[key]);
-      const values = words.map(subKey => state[key][subKey] ** complexity);
+      const values = words.map((subKey) => state[key][subKey] ** complexity);
       const sum = values.reduce((sum, value) => sum + value, 0);
 
       memo[key] = { sum, values, words };
@@ -212,7 +196,7 @@ export default class Markov {
 
   private getNextWord = (thisWord: string): string => {
     const {
-      config: { memo }
+      config: { memo },
     } = this;
 
     /*
@@ -233,7 +217,7 @@ export default class Markov {
   };
 
   private updateState = (startWord: string, nextWord: string) => {
-    this.state[startWord]
+    return this.state[startWord]
       ? this.state[startWord][nextWord]
         ? (this.state[startWord][nextWord] += 1)
         : (this.state[startWord][nextWord] = 1)

@@ -3,18 +3,15 @@ import * as fs from 'fs';
 import Markov from '../src';
 
 // ### instantiation tests
-test('is a classy function', t => {
+test('is a classy function', (t) => {
   t.deepEqual(typeof Markov, 'function');
 });
 
-test('is able to be instantiated', t => {
-  t.deepEqual(
-    JSON.stringify(new Markov()),
-    '{"state":{},"config":{"complexity":1,"memo":{}}}'
-  );
+test('is able to be instantiated', (t) => {
+  t.deepEqual(JSON.stringify(new Markov()), '{"state":{},"config":{"complexity":1,"memo":{}}}');
 });
 
-test('can be instantiated with a valid json file instead', t => {
+test('can be instantiated with a valid json file instead', (t) => {
   fs.writeFileSync('./input_test.json', '{ "word": { "none": 1 } }');
   t.deepEqual(
     JSON.stringify(new Markov('./input_test.json')),
@@ -23,14 +20,14 @@ test('can be instantiated with a valid json file instead', t => {
   fs.unlinkSync('input_test.json');
 });
 
-test("semi-quietly continues if file isn't valid", t => {
+test("semi-quietly continues if file isn't valid", (t) => {
   t.deepEqual(
     JSON.stringify(new Markov('./flipleblorphf.jsopple')),
     '{"state":{},"config":{"complexity":1,"memo":{}}}'
   );
 });
 
-test('can be instantiated with object', t => {
+test('can be instantiated with object', (t) => {
   t.deepEqual(
     JSON.stringify(new Markov({ dingle: { bop: 1 } })),
     '{"state":{"dingle":{"bop":1}},"config":{"complexity":1,"memo":{"dingle":{"sum":1,"values":[1],"words":["bop"]}}}}'
@@ -38,40 +35,37 @@ test('can be instantiated with object', t => {
 });
 
 // ### functionality tests
-test('has an export function', t => {
+test('has an export function', (t) => {
   const mkj = new Markov();
   t.deepEqual(mkj.output(), {});
 });
 
-test('defaults to complexity 1 for dumb answers to complexity #', t => {
+test('defaults to complexity 1 for dumb answers to complexity #', (t) => {
+  // @ts-expect-error it's a test, the input is wrong on purpose
   const mkjs = new Markov(undefined, { complexity: 'blorf' });
   const internals = JSON.parse(JSON.stringify(mkjs));
   t.deepEqual(internals.config, { complexity: 1 });
 
   // also works for negative numbers
   mkjs.setComplexity(-1);
-  const negativeInternal = JSON.parse(JSON.stringify(mkjs));
+  JSON.parse(JSON.stringify(mkjs));
   t.deepEqual(internals.config, { complexity: 1 });
 });
 
-test('defaults to 1 complexity when not given one', t => {
-  // @ts-ignore
+test('defaults to 1 complexity when not given one', (t) => {
   const mkjs = new Markov(undefined, {});
   const internals = JSON.parse(JSON.stringify(mkjs));
   t.deepEqual(internals.config, { complexity: 1, memo: {} });
 });
 
-test('it will output to a file instead, if asked', t => {
+test('it will output to a file instead, if asked', (t) => {
   const thismkjOfMine = new Markov();
   t.deepEqual(thismkjOfMine.output('./output_test.json'), undefined);
-  t.deepEqual(
-    JSON.parse(fs.readFileSync('./output_test.json', { encoding: 'utf8' })),
-    {}
-  );
+  t.deepEqual(JSON.parse(fs.readFileSync('./output_test.json', { encoding: 'utf8' })), {});
   fs.unlinkSync('./output_test.json');
 });
 
-test('will output something that can be consumed and used again', t => {
+test('will output something that can be consumed and used again', (t) => {
   const theTimeIBrokeIt = `
   # https://github.com/one19/markov-json/issues/10
   /*
@@ -97,17 +91,17 @@ test('will output something that can be consumed and used again', t => {
 });
 
 // ### training tests
-test('it deconstructs groupings of words into state', t => {
+test('it deconstructs groupings of words into state', (t) => {
   const mkj = new Markov();
   mkj.train('some words');
   t.deepEqual(mkj.output(), {
     some: { words: 1 },
     s‌‍t‌‍a‌‍r‌‍t: { some: 1 },
-    words: { s‌‍t‌‍a‌‍r‌‍t: 1 }
+    words: { s‌‍t‌‍a‌‍r‌‍t: 1 },
   });
 });
 
-test('can be trained many times', t => {
+test('can be trained many times', (t) => {
   const mkj = new Markov();
   mkj.train('some words');
   mkj.train('other wards');
@@ -116,11 +110,11 @@ test('can be trained many times', t => {
     words: { s‌‍t‌‍a‌‍r‌‍t: 1 },
     other: { wards: 1 },
     wards: { s‌‍t‌‍a‌‍r‌‍t: 1 },
-    s‌‍t‌‍a‌‍r‌‍t: { some: 1, other: 1 }
+    s‌‍t‌‍a‌‍r‌‍t: { some: 1, other: 1 },
   });
 });
 
-test('it knows about sentences', t => {
+test('it knows about sentences', (t) => {
   const mkj = new Markov();
   mkj.train('ook. ook! ook?? ook! ook...');
   t.deepEqual(mkj.output(), {
@@ -128,69 +122,55 @@ test('it knows about sentences', t => {
       '‌‍.': 1,
       '‌‍!': 2,
       '‌‍??': 1,
-      '‌‍...': 1
+      '‌‍...': 1,
     },
     s‌‍t‌‍a‌‍r‌‍t: { ook: 5 },
     '‌‍.': { s‌‍t‌‍a‌‍r‌‍t: 1 },
     '‌‍!': { s‌‍t‌‍a‌‍r‌‍t: 2 },
     '‌‍??': { s‌‍t‌‍a‌‍r‌‍t: 1 },
-    '‌‍...': { s‌‍t‌‍a‌‍r‌‍t: 1 }
+    '‌‍...': { s‌‍t‌‍a‌‍r‌‍t: 1 },
   });
 });
 
-test('refuses to allow unending sentences to run forever', t => {
+test('refuses to allow unending sentences to run forever', (t) => {
   const mkj = new Markov();
   // no punctuation at all in 10000 copies of our training sentence
   // this means it could run a very long time before finding the endchar
   // automatically appended to the end of every training string
-  const noEndSentence =
-    'each word four char long this time runs lots over four ever';
+  const noEndSentence = 'each word four char long this time runs lots over four ever';
   const longNoEndInput = Array(10000)
     .fill(0)
-    .reduce(ret => ret + ' ' + noEndSentence, '');
+    .reduce((ret) => ret + ' ' + noEndSentence, '');
   mkj.train(longNoEndInput);
   // default output constraint is 2000 words: 4 length + 1 space
   const sentence = mkj.sentence(234);
   t.true(sentence.length <= 5 * 2000);
 });
-test('has an alias for outputting multiple sentences', t => {
+test('has an alias for outputting multiple sentences', (t) => {
   const mK = new Markov();
   mK.train('some words rhyme with orange.');
-  t.deepEqual(
-    mK
-      .sentences(15)
-      .split('.')
-      .filter(Boolean).length,
-    15
-  );
+  t.deepEqual(mK.sentences(15).split('.').filter(Boolean).length, 15);
 });
 
-test('also refuses to allow blobs to run forever', t => {
+test('also refuses to allow blobs to run forever', (t) => {
   const mkj = new Markov();
-  const noEndSentence =
-    'each word four char long this time runs lots over four ever';
+  const noEndSentence = 'each word four char long this time runs lots over four ever';
 
   const longNoEndInput = Array(10000)
     .fill(0)
-    .reduce(ret => ret + ' ' + noEndSentence, '');
+    .reduce((ret) => ret + ' ' + noEndSentence, '');
   mkj.train(longNoEndInput);
   // default output constraint is 2000 words: 4 length + 1 space
   const sentence = mkj.blob();
   t.true(sentence.length === 119 * 5 - 1);
 });
-test('has a sensible `words` alias for blob', t => {
+test('has a sensible `words` alias for blob', (t) => {
   const mK = new Markov();
   mK.train('tufle fleeb, scrimpble forp mabler. "Schimble"!');
-  t.deepEqual(
-    mK
-      .words(33)
-      .split(' ')
-      .filter(Boolean).length,
-    33
-  );
+  t.deepEqual(mK.words(33).split(' ').filter(Boolean).length, 33);
 });
 
-test('it also knows about other punctuation uses', t => {
+test('it also knows about other punctuation uses', (t) => {
   const mkj = new Markov();
   mkj.train('some words, -other stuff- Also "things" lel #');
   // since each thing is a unique bit of sentence, this next object
@@ -212,26 +192,25 @@ test('it also knows about other punctuation uses', t => {
     things: { '‌‍"': 1 },
     '‌‍"': { lel: 1 },
     lel: { '#': 1 },
-    '#': { s‌‍t‌‍a‌‍r‌‍t: 1 }
+    '#': { s‌‍t‌‍a‌‍r‌‍t: 1 },
   });
 });
 
 // ### usage tests
-const invariantSentence =
-  'This is a "poor" sentence, with no variance or like anything.';
+const invariantSentence = 'This is a "poor" sentence, with no variance or like anything.';
 
-test('when given a poor training set, outputs poor results', t => {
+test('when given a poor training set, outputs poor results', (t) => {
   const mkj = new Markov();
   mkj.train(invariantSentence);
   t.deepEqual(mkj.sentence(), invariantSentence);
 });
 // the word 'a' doesn't count
-test('returns similar things, but responds to word counts', t => {
+test('returns similar things, but responds to word counts', (t) => {
   const mkj = new Markov();
   mkj.train(invariantSentence);
   const fiftyTimes = Array(50)
     .fill(0)
-    .reduce(ret => ret + ' ' + invariantSentence, '')
+    .reduce((ret) => ret + ' ' + invariantSentence, '')
     .slice(1, 3099);
   // we had to slice off the leading ' ' we added, and also, the trailing period
   // because the algo isn't smart enough to let it append another . once it has
@@ -254,22 +233,21 @@ type Histogram = {
 };
 
 const histogrammify = (charsArray: string[]) =>
-  charsArray.reduce(
-    (hist: Histogram, char: string, charIndex: number): Histogram => {
-      typeof hist[char] !== 'number' ? (hist[char] = 1) : (hist[char] += 1);
-      if (charIndex === charsArray.length - 1) {
-        return Object.keys(hist).reduce(
-          (phist: Histogram, char: string): Histogram => {
-            phist[char] = hist[char] / charsArray.length;
-            return phist;
-          },
-          {}
-        );
-      }
-      return hist;
-    },
-    {}
-  );
+  charsArray.reduce((hist: Histogram, char: string, charIndex: number): Histogram => {
+    if (typeof hist[char] !== 'number') {
+      hist[char] = 1;
+    } else {
+      hist[char] += 1;
+    }
+
+    if (charIndex === charsArray.length - 1) {
+      return Object.keys(hist).reduce((phist: Histogram, char: string): Histogram => {
+        phist[char] = hist[char] / charsArray.length;
+        return phist;
+      }, {});
+    }
+    return hist;
+  }, {});
 
 const fstein = fs.readFileSync('test/frankenstein.txt', 'utf8');
 // her novel has lots of empty spaces, and our this tool doesn't understand paragraphs... yet
@@ -281,24 +259,22 @@ const chars = fstein
 
 const shellyGram: Histogram = histogrammify(chars);
 
-test('distribution of output chars should be no more than 1.5% off, given large datasets', t => {
+test('distribution of output chars should be no more than 1.5% off, given large datasets', (t) => {
   const mkjs = new Markov();
-  console.time('trained in');
+  // console.time('trained in');
   mkjs.train(fstein);
-  console.timeEnd('trained in');
+  // console.timeEnd('trained in');
 
-  console.time('made a small novel in');
+  // console.time('made a small novel in');
   const bigBlob = mkjs.blob(50000);
-  console.timeEnd('made a small novel in');
+  // console.timeEnd('made a small novel in');
 
-  const mkjsHistogram: Histogram = histogrammify(
-    bigBlob.toLowerCase().split('')
-  );
+  const mkjsHistogram: Histogram = histogrammify(bigBlob.toLowerCase().split(''));
 
   // comparing characters, our big output should be no more than 1.5% off on any of them
   Object.keys(mkjsHistogram)
     .sort((a, b) => (mkjsHistogram[a] > mkjsHistogram[b] ? 1 : -1))
-    .forEach(character => {
+    .forEach((character) => {
       const diff = Math.abs(shellyGram[character] - mkjsHistogram[character]);
 
       // console.log(`character|${character}|mk|${mkjsHistogram[character].toFixed(4)}|sh|${shellyGram[character].toFixed(4)}|-diff|${diff.toFixed(4)}`);
@@ -306,12 +282,11 @@ test('distribution of output chars should be no more than 1.5% off, given large 
     });
 });
 
-test('output distribution should not be influenced by frequency at complexity = 0', t => {
+test('output distribution should not be influenced by frequency at complexity = 0', (t) => {
   const mkjs = new Markov(undefined, { complexity: 0 });
   // `this.` is a super common pairing, so in complexity 1, it would show up often
   // but given complexity 0, the sequence will be roughly 50/50 `this.` and `axle.`
-  const highFreqSentence =
-    'this. this. this. this. axle. this. this. this. this. this.';
+  const highFreqSentence = 'this. this. this. this. axle. this. this. this. this. this.';
   mkjs.train(highFreqSentence);
 
   const result = mkjs.blob(50000);
@@ -321,12 +296,11 @@ test('output distribution should not be influenced by frequency at complexity = 
   t.true(Math.abs(thisCount - axleCount) / 50000 <= 0.05);
 });
 
-test('complexity can be set on the fly, regardless of training complexity', t => {
+test('complexity can be set on the fly, regardless of training complexity', (t) => {
   const mkjs = new Markov(undefined, { complexity: 0 });
   // `this.` is a super common pairing, so in complexity 1, it would show up often
   // but given complexity 0, the sequence will be roughly 50/50 `this.` and `axle.`
-  const highFreqSentence =
-    'this. this. this. this. axle. this. this. this. this. this.';
+  const highFreqSentence = 'this. this. this. this. axle. this. this. this. this. this.';
   mkjs.train(highFreqSentence);
 
   const result = mkjs.blob(50000);
@@ -343,9 +317,8 @@ test('complexity can be set on the fly, regardless of training complexity', t =>
   t.true(Math.abs(thisLinear / axleLinear) - 9 <= 0.5);
 });
 
-test('distribution should weight heavily towards repeats as n+ > 1', t => {
-  const discreteSentence =
-    'two. two. three. three. three. ones. four. four. four. four.';
+test('distribution should weight heavily towards repeats as n+ > 1', (t) => {
+  const discreteSentence = 'two. two. three. three. three. ones. four. four. four. four.';
   const words = [/ones/gi, /two/gi, /three/gi, /four/gi];
 
   const mkjs2 = new Markov(undefined, { complexity: 2 });
@@ -362,10 +335,10 @@ test('distribution should weight heavily towards repeats as n+ > 1', t => {
 
   const all2 = 1 + 2 ** 2 + 3 ** 2 + 4 ** 2;
   const all3 = 1 + 2 ** 3 + 3 ** 3 + 4 ** 3;
-  [1, 2, 3, 4].forEach(i => {
+  [1, 2, 3, 4].forEach((i) => {
     // output distribution approximates (repetitions^complexity)
-    const diff2 = output2.match(words[i - 1]).length - i ** 2 * 50000 / all2;
-    const diff3 = output3.match(words[i - 1]).length - i ** 3 * 50000 / all3;
+    const diff2 = output2.match(words[i - 1]).length - (i ** 2 * 50000) / all2;
+    const diff3 = output3.match(words[i - 1]).length - (i ** 3 * 50000) / all3;
 
     t.true(Math.abs(diff2) / 50000 <= 0.015);
     t.true(Math.abs(diff3) / 50000 <= 0.015);
