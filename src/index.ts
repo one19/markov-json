@@ -225,5 +225,7 @@ export default class Markov {
   };
 }
 
+const _catchWeirdos = (pattern: string) => /.*/.test(pattern);
+
 module.exports = Markov;
 module.exports.default = Markov;

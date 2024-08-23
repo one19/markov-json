@@ -38,7 +38,10 @@ export default [
       'no-control-regex': 'off',
       'no-undef': 'off',
       'no-useless-escape': 'off',
-      '@typescript-eslint/no-unused-vars': ['error', { caughtErrorsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { caughtErrorsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       'prettier/prettier': [
         'error',
         {
