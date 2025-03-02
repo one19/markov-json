@@ -26,8 +26,9 @@
   "private": false,
   "scripts": {
     "build": "tsc",
-    "lint": "eslint . --fix",
+    "coverage": "tsc && nyc ava dist/test && nyc report --reporter=html",
     "eslint-check": "eslint .",
+    "lint": "eslint . --fix",
     "test": "tsc && ava dist/test"
   },
   "devDependencies": {
