@@ -1,7 +1,6 @@
 # MARKOV-JSON
 
-[![published on npm!](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/npm.svg?sanitize=true)](https://www.npmjs.com/package/markov-json) [![Maintainability](https://api.codeclimate.com/v1/badges/1659d014ba146934b051/maintainability)](https://codeclimate.com/github/one19/markov-json/maintainability)
-
+[![published on npm!](https://raw.githubusercontent.com/one19/project-status/master/cache/markov-json/npm.svg?sanitize=true)](https://www.npmjs.com/package/markov-json)
 ---
 
 A markov generator of 2 depth and variable complexity, made for most human languages. It's made to be really really simple to use!

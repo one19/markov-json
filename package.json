@@ -40,6 +40,7 @@
     "eslint-config-prettier": "^10.0.2",
     "eslint-plugin-prettier": "^5.2.3",
     "globals": "^16.0.0",
+    "markov-json": "^1.1.10",
     "nyc": "^17.1.0",
     "prettier": "^3.5.2",
     "prettier-eslint": "^16.3.0",
