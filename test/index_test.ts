@@ -349,3 +349,27 @@ test('distribution should weight heavily towards repeats as n+ > 1', (t) => {
     if (i === 3) t.true(output200.match(words[i]).length > 49995);
   });
 });
+
+// got a bogus security vulnerability about this, so let's see if its real
+// it's not. we use a regex to remove all whitespace, and then split on spaces
+// the vulnerable regex is run after this. 10million tabs took 0.6s to process
+// and any idiot is doing this to themselves. It's not a vulnerability.
+test('handles large input with many tabs efficiently', (t) => {
+  // Generate a large string with many tab characters.
+  const repeatCount = 10000000;
+  // Create a string such as "word\t" repeated many times with spaces in between.
+  const largeInput = Array(repeatCount).fill('\t').join(' ') + ' end.';
+
+  const mk = new Markov();
+  const start = Date.now();
+
+  mk.train(largeInput);
+  // Generate a blob of 1000 words.
+  const output = mk.blob(1000);
+  const duration = Date.now() - start;
+
+  // Assert that output is non-empty.
+  t.true(output.length > 0);
+  // Assert the execution time is below a threshold (e.g., 2000ms).
+  t.true(duration < 2000, `Regex lookup took too long: ${duration}ms`);
+});

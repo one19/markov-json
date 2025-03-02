@@ -10,7 +10,7 @@ const anyEndPunc = /[\.!?]+$/;
 const wordLike = /[^‌‍][a-zA-Z0-9]+/g;
 
 export type MarkovWord = {
-  [nextword: string]: number;
+  [nextWord: string]: number;
 };
 export interface State {
   [key: string]: MarkovWord;
@@ -62,7 +62,7 @@ export default class Markov {
       this.config.memo = {};
     }
 
-    this.memoIze();
+    this.memoize();
   }
 
   output = (filepath?: string): void | State => {
@@ -76,7 +76,7 @@ export default class Markov {
   setComplexity = (complexity?: number): void => {
     if (typeof complexity === 'number' && complexity >= 0) {
       this.config.complexity = complexity;
-      this.memoIze();
+      this.memoize();
     }
   };
 
@@ -107,7 +107,7 @@ export default class Markov {
       }, sentenceStart);
 
     this.sortState();
-    this.memoIze();
+    this.memoize();
   };
 
   sentence = (numberOfSentences: number = 1): string => this.reconstruct(numberOfSentences);
@@ -145,8 +145,8 @@ export default class Markov {
   / replaces our crazy "start" word and our
   / crazy punctuation directionality markers with nothing
   */
-  private cleanUp = (dialoge: string): string =>
-    dialoge
+  private cleanUp = (dialog: string): string =>
+    dialog
       .replace(/\s*s‌‍t‌‍a‌‍r‌‍t/g, '')
       .slice(1)
       .replace(/(\s*‌‍\s*)/g, '');
@@ -179,7 +179,7 @@ export default class Markov {
   / this means we don't have to do those ops in-situ
   / when generating the next random word in our sequence
   */
-  private memoIze = (): void => {
+  private memoize = (): void => {
     const {
       config: { memo, complexity },
       state,
@@ -224,8 +224,6 @@ export default class Markov {
       : (this.state[startWord] = { [nextWord]: 1 });
   };
 }
-
-const _catchWeirdos = (pattern: string) => /.*/.test(pattern);
 
 module.exports = Markov;
 module.exports.default = Markov;
